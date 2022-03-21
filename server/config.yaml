@@ -126,7 +126,7 @@ system:
   addr: 8888
   db-type: mysql
   oss-type: local
-  use-multipoint: false
+  use-multipoint: true
   use-redis: false
   iplimit-count: 15000
   iplimit-time: 3600
