@@ -39,20 +39,25 @@ func Viper(path ...string) *viper.Viper {
 	}
 
 	v := viper.New()
+	// 指定配置文件路径
 	v.SetConfigFile(config)
+	// 读取配置信息
 	v.SetConfigType("yaml")
 	err := v.ReadInConfig()
 	if err != nil {
 		panic(fmt.Errorf("Fatal error config file: %s \n", err))
 	}
+	//监控并重新读取配置文件
 	v.WatchConfig()
-
+	//配置文件发生变更之后会调用的回调函数
 	v.OnConfigChange(func(e fsnotify.Event) {
 		fmt.Println("config file changed:", e.Name)
+		// 反序列化
 		if err := v.Unmarshal(&global.GVA_CONFIG); err != nil {
 			fmt.Println(err)
 		}
 	})
+	// 反序列化
 	if err := v.Unmarshal(&global.GVA_CONFIG); err != nil {
 		fmt.Println(err)
 	}

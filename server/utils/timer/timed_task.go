@@ -27,10 +27,13 @@ type timer struct {
 func (t *timer) AddTaskByFunc(taskName string, spec string, task func()) (cron.EntryID, error) {
 	t.Lock()
 	defer t.Unlock()
+	//添加定时器函数，如果name没有对应的实例就创建
 	if _, ok := t.taskList[taskName]; !ok {
 		t.taskList[taskName] = cron.New()
 	}
+	//添加函数
 	id, err := t.taskList[taskName].AddFunc(spec, task)
+	//执行
 	t.taskList[taskName].Start()
 	return id, err
 }

@@ -22,6 +22,7 @@ import (
 func main() {
 	global.GVA_VP = core.Viper() // 初始化Viper
 	global.GVA_LOG = core.Zap()  // 初始化zap日志库
+	//ReplaceGlobals 替换全局 Logger 和 SugaredLogger，并返回一个函数来恢复原始值。
 	zap.ReplaceGlobals(global.GVA_LOG)
 	global.GVA_DB = initialize.Gorm() // gorm连接数据库
 	initialize.Timer()

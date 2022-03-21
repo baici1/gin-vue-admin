@@ -21,8 +21,9 @@ func GetWriteSyncer(file string) zapcore.WriteSyncer {
 		MaxAge:     30,   // 保留旧文件的最大天数
 		Compress:   true, // 是否压缩/归档旧文件
 	}
-
+	//是否输出到控制台,默认为true
 	if global.GVA_CONFIG.Zap.LogInConsole {
+		//同时打印到控制台和文件
 		return zapcore.NewMultiWriteSyncer(zapcore.AddSync(os.Stdout), zapcore.AddSync(lumberJackLogger))
 	}
 	return zapcore.AddSync(lumberJackLogger)

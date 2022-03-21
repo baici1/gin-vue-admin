@@ -14,6 +14,7 @@ import (
 func Zap() (logger *zap.Logger) {
 	if ok, _ := utils.PathExists(global.GVA_CONFIG.Zap.Director); !ok { // 判断是否有Director文件夹
 		fmt.Printf("create %v directory\n", global.GVA_CONFIG.Zap.Director)
+		//如果没有log文件，选择重新创建一个
 		_ = os.Mkdir(global.GVA_CONFIG.Zap.Director, os.ModePerm)
 	}
 	// 调试级别
@@ -39,15 +40,17 @@ func Zap() (logger *zap.Logger) {
 		getEncoderCore(fmt.Sprintf("./%s/server_warn.log", global.GVA_CONFIG.Zap.Director), warnPriority),
 		getEncoderCore(fmt.Sprintf("./%s/server_error.log", global.GVA_CONFIG.Zap.Director), errorPriority),
 	}
+	//NewTee 创建一个将日志条目复制到两个或多个底层核心的核心。
+	//AddCaller 添加将调用函数信息记录到日志中的功能
 	logger = zap.New(zapcore.NewTee(cores[:]...), zap.AddCaller())
-
+	//怀疑是保证应用AddCaller，或者添加多余的
 	if global.GVA_CONFIG.Zap.ShowLine {
 		logger = logger.WithOptions(zap.AddCaller())
 	}
 	return logger
 }
 
-// getEncoderConfig 获取zapcore.EncoderConfig
+// getEncoderConfig 获取zapcore.EncoderConfig //自定义写日志配置
 func getEncoderConfig() (config zapcore.EncoderConfig) {
 	config = zapcore.EncoderConfig{
 		MessageKey:     "message",
@@ -77,7 +80,7 @@ func getEncoderConfig() (config zapcore.EncoderConfig) {
 	return config
 }
 
-// getEncoder 获取zapcore.Encoder
+// getEncoder 获取zapcore.Encoder 写入日志的格式
 func getEncoder() zapcore.Encoder {
 	if global.GVA_CONFIG.Zap.Format == "json" {
 		return zapcore.NewJSONEncoder(getEncoderConfig())
@@ -85,7 +88,7 @@ func getEncoder() zapcore.Encoder {
 	return zapcore.NewConsoleEncoder(getEncoderConfig())
 }
 
-// getEncoderCore 获取Encoder的zapcore.Core
+// getEncoderCore 获取Encoder的zapcore.Core //设置不同级别的日志写入。
 func getEncoderCore(fileName string, level zapcore.LevelEnabler) (core zapcore.Core) {
 	writer := utils.GetWriteSyncer(fileName) // 使用file-rotatelogs进行日志分割
 	return zapcore.NewCore(getEncoder(), writer, level)
