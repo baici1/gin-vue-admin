@@ -1,10 +1,13 @@
 package autocode
 
 import (
+	"errors"
 	"github.com/flipped-aurora/gin-vue-admin/server/global"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/autocode"
 	autoCodeReq "github.com/flipped-aurora/gin-vue-admin/server/model/autocode/request"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/common/request"
+	"github.com/flipped-aurora/gin-vue-admin/server/utils"
+	"gorm.io/gorm"
 )
 
 type UserInfoService struct {
@@ -13,6 +16,11 @@ type UserInfoService struct {
 // CreateUserInfo 创建UserInfo记录
 // Author [piexlmax](https://github.com/piexlmax)
 func (userInfoService *UserInfoService) CreateUserInfo(userInfo autocode.UserInfo) (err error) {
+	var user autocode.UserInfo
+	if errors.Is(global.GVA_DB.Where("phone=?", userInfo.Phone).First(&user).Error, gorm.ErrRecordNotFound) {
+		return errors.New("用户已注册")
+	}
+	userInfo.Password = utils.MD5V([]byte(userInfo.Password))
 	err = global.GVA_DB.Create(&userInfo).Error
 	return err
 }
@@ -34,6 +42,7 @@ func (userInfoService *UserInfoService) DeleteUserInfoByIds(ids request.IdsReq) 
 // UpdateUserInfo 更新UserInfo记录
 // Author [piexlmax](https://github.com/piexlmax)
 func (userInfoService *UserInfoService) UpdateUserInfo(userInfo autocode.UserInfo) (err error) {
+	userInfo.Password = utils.MD5V([]byte(userInfo.Password))
 	err = global.GVA_DB.Save(&userInfo).Error
 	return err
 }

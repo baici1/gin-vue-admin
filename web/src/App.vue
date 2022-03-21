@@ -6,7 +6,7 @@
 
 <script>
 export default {
-  name: 'App'
+  name: 'App',
 }
 </script>
 
@@ -21,7 +21,7 @@ export default {
   overflow: hidden;
   font-weight: 400 !important;
 }
-.el-button{
+.el-button {
   font-weight: 400 !important;
 }
 </style>

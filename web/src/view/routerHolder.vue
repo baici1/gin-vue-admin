@@ -13,7 +13,7 @@
 
 <script>
 export default {
-  name: 'RouterHolder'
+  name: 'RouterHolder',
 }
 </script>
 
