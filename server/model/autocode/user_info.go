@@ -12,8 +12,8 @@ type UserInfo struct {
 	Password string `json:"password" form:"password" gorm:"column:password;comment:密码;size:255;"`
 	Phone    string `json:"phone" form:"phone" gorm:"column:phone;comment:手机号;"`
 	Slat     string `json:"slat" form:"slat" gorm:"column:slat;comment:加盐;size:255;"`
-	Identity *int   `json:"identity" form:"identity" gorm:"column:identity;comment:身份 1是老师 0是学生;size:10;"`
-	Check    *int   `json:"check" form:"check" gorm:"column:check;comment:审核老师;size:10;"`
+	Identity int    `json:"identity" form:"identity" gorm:"column:identity;comment:身份 1是老师 0是学生;size:10;"`
+	Check    int    `json:"check" form:"check" gorm:"column:check;comment:审核老师;size:10;"`
 }
 
 // TableName UserInfo 表名

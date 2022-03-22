@@ -2,9 +2,6 @@
   <div>
     <div class="gva-search-box">
       <el-form :inline="true" :model="searchInfo" class="demo-form-inline">
-        <el-form-item label="手机号">
-          <el-input v-model="searchInfo.phone" placeholder="搜索条件" />
-        </el-form-item>
         <el-form-item>
           <el-button size="small" type="primary" icon="search" @click="onSubmit">查询</el-button>
           <el-button size="small" icon="refresh" @click="onReset">重置</el-button>
@@ -16,7 +13,7 @@
         <el-button size="small" type="primary" icon="plus" @click="openDialog">新增</el-button>
         <el-popover v-model:visible="deleteVisible" placement="top" width="160">
           <p>确定要删除吗？</p>
-          <div style="text-align: right; margin-top: 8px">
+          <div style="text-align: right; margin-top: 8px;">
             <el-button size="small" type="text" @click="deleteVisible = false">取消</el-button>
             <el-button size="small" type="primary" @click="onDelete">确定</el-button>
           </div>
@@ -24,7 +21,7 @@
             <el-button
               icon="delete"
               size="small"
-              style="margin-left: 10px"
+              style="margin-left: 10px;"
               :disabled="!multipleSelection.length"
               @click="deleteVisible = true"
             >删除</el-button>
@@ -41,31 +38,27 @@
       >
         <el-table-column type="selection" width="55" />
         <el-table-column align="left" label="日期" width="180">
-          <template #default="scope">
-            {{
-              formatDate(scope.row.CreatedAt)
-            }}
-          </template>
+          <template #default="scope">{{ formatDate(scope.row.CreatedAt) }}</template>
         </el-table-column>
-        <el-table-column align="left" label="手机号" prop="phone" width="120" />
-        <!-- <el-table-column align="left" label="密码" prop="password" width="120" /> -->
-        <el-table-column align="left" label="备注" prop="slat" width="120" />
-        <el-table-column align="left" label="身份" prop="identity" width="120">
-          <template #default="scope">
-            <el-tag
-              class="ml-2"
-              :type="ChooseTagType(scope.row.identity, identityOptions)"
-            >{{ filterDict(scope.row.identity, identityOptions) }}</el-tag>
-          </template>
+        <el-table-column align="left" label="人事编号" prop="personnelId" width="120" />
+        <el-table-column align="left" label="教务编号" prop="officeId" width="120" />
+        <el-table-column align="left" label="财务编号" prop="financialId" width="120" />
+        <el-table-column align="left" label="用户编号" prop="uId" width="120" />
+        <el-table-column align="left" label="昵称" prop="nickname" width="120" />
+        <el-table-column align="left" label="邮箱" prop="email" width="120" />
+        <el-table-column align="left" label="头像" prop="avatar" width="120" />
+        <el-table-column align="left" label="姓名" prop="realName" width="120" />
+        <el-table-column align="left" label="性别" prop="gender" width="120">
+          <template #default="scope">{{ filterDict(scope.row.gender, genderOptions) }}</template>
         </el-table-column>
-        <el-table-column align="left" label="审核" prop="check" width="120">
-          <template #default="scope">
-            <el-tag
-              class="ml-2"
-              :type="ChooseTagType(scope.row.check, checkOptions)"
-            >{{ filterDict(scope.row.check, checkOptions) }}</el-tag>
-          </template>
-        </el-table-column>
+        <el-table-column align="left" label="学院" prop="department" width="120" />
+        <el-table-column align="left" label="专业方向" prop="major" width="120" />
+        <el-table-column align="left" label="职称" prop="position" width="120" />
+        <el-table-column align="left" label="特长" prop="specialty" width="120" />
+        <el-table-column align="left" label="学历" prop="degree" width="120" />
+        <el-table-column align="left" label="银行名称" prop="bankName" width="120" />
+        <el-table-column align="left" label="银行卡号" prop="bankCardNumber" width="120" />
+        <el-table-column align="left" label="介绍" prop="introduction" width="120" />
         <el-table-column align="left" label="按钮组">
           <template #default="scope">
             <el-button
@@ -73,10 +66,9 @@
               icon="edit"
               size="small"
               class="table-button"
-              @click="updateUserInfoFunc(scope.row)"
+              @click="updateTeacherInfoFunc(scope.row)"
             >变更</el-button>
             <el-button type="text" icon="delete" size="small" @click="deleteRow(scope.row)">删除</el-button>
-            <el-button type="text" icon="view" size="small" @click="goUserDetail(scope.row)">详情</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -94,34 +86,63 @@
     </div>
     <el-dialog v-model="dialogFormVisible" :before-close="closeDialog" title="弹窗操作">
       <el-form :model="formData" label-position="right" label-width="80px">
-        <el-form-item label="手机号:">
-          <el-input v-model="formData.phone" clearable placeholder="请输入" />
+        <el-form-item label="人事编号:">
+          <el-input v-model="formData.personnelId" clearable placeholder="请输入" />
         </el-form-item>
-        <el-form-item label="密码:">
-          <el-input v-model="formData.password" clearable placeholder="请输入" disabled />
+        <el-form-item label="教务编号:">
+          <el-input v-model="formData.officeId" clearable placeholder="请输入" />
         </el-form-item>
-        <el-form-item label="备注:">
-          <el-input v-model="formData.slat" clearable placeholder="请输入" />
+        <el-form-item label="财务编号:">
+          <el-input v-model="formData.financialId" clearable placeholder="请输入" />
         </el-form-item>
-        <el-form-item label="身份:">
-          <el-select v-model="formData.identity" placeholder="请选择" style="width: 100%" clearable>
+        <el-form-item label="用户编号:">
+          <el-input v-model.number="formData.uId" clearable placeholder="请输入" />
+        </el-form-item>
+        <el-form-item label="昵称:">
+          <el-input v-model="formData.nickname" clearable placeholder="请输入" />
+        </el-form-item>
+        <el-form-item label="邮箱:">
+          <el-input v-model="formData.email" clearable placeholder="请输入" />
+        </el-form-item>
+        <el-form-item label="头像:">
+          <el-input v-model="formData.avatar" clearable placeholder="请输入" />
+        </el-form-item>
+        <el-form-item label="姓名:">
+          <el-input v-model="formData.realName" clearable placeholder="请输入" />
+        </el-form-item>
+        <el-form-item label="性别:">
+          <el-select v-model="formData.gender" placeholder="请选择" style="width:100%" clearable>
             <el-option
-              v-for="(item, key) in identityOptions"
+              v-for="(item, key) in genderOptions"
               :key="key"
               :label="item.label"
               :value="item.value"
             />
           </el-select>
         </el-form-item>
-        <el-form-item label="审核:">
-          <el-select v-model="formData.check" placeholder="请选择" style="width: 100%" clearable>
-            <el-option
-              v-for="(item, key) in checkOptions"
-              :key="key"
-              :label="item.label"
-              :value="item.value"
-            />
-          </el-select>
+        <el-form-item label="学院:">
+          <el-input v-model="formData.department" clearable placeholder="请输入" />
+        </el-form-item>
+        <el-form-item label="专业方向:">
+          <el-input v-model="formData.major" clearable placeholder="请输入" />
+        </el-form-item>
+        <el-form-item label="职称:">
+          <el-input v-model="formData.position" clearable placeholder="请输入" />
+        </el-form-item>
+        <el-form-item label="特长:">
+          <el-input v-model="formData.specialty" clearable placeholder="请输入" />
+        </el-form-item>
+        <el-form-item label="学历:">
+          <el-input v-model="formData.degree" clearable placeholder="请输入" />
+        </el-form-item>
+        <el-form-item label="银行名称:">
+          <el-input v-model="formData.bankName" clearable placeholder="请输入" />
+        </el-form-item>
+        <el-form-item label="银行卡号:">
+          <el-input v-model="formData.bankCardNumber" clearable placeholder="请输入" />
+        </el-form-item>
+        <el-form-item label="介绍:">
+          <el-input v-model="formData.introduction" clearable placeholder="请输入" />
         </el-form-item>
       </el-form>
       <template #footer>
@@ -136,40 +157,45 @@
 
 <script>
 export default {
-  name: 'UserInfo',
+  name: 'TeacherInfo'
 }
 </script>
 
 <script setup>
-import { ChooseTagType } from '@/utils/tools'
 import {
-  createUserInfo,
-  deleteUserInfo,
-  deleteUserInfoByIds,
-  updateUserInfo,
-  findUserInfo,
-  getUserInfoList,
-} from '@/api/userInfo'
+  createTeacherInfo,
+  deleteTeacherInfo,
+  deleteTeacherInfoByIds,
+  updateTeacherInfo,
+  findTeacherInfo,
+  getTeacherInfoList
+} from '@/api/teacherInfo'
 
 // 全量引入格式化工具 请按需保留
-import {
-  getDictFunc,
-  formatDate,
-  filterDict,
-} from '@/utils/format'
+import { getDictFunc, formatDate, filterDict } from '@/utils/format'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { ref } from 'vue'
-import { useRouter } from 'vue-router'
-const router = useRouter()
+
 // 自动化生成的字典（可能为空）以及字段
-const identityOptions = ref([])
-const checkOptions = ref([])
+const genderOptions = ref([])
 const formData = ref({
-  password: '',
-  phone: '',
-  slat: '',
-  identity: undefined,
-  check: undefined,
+  personnelId: '',
+  officeId: '',
+  financialId: '',
+  uId: 0,
+  nickname: '',
+  email: '',
+  avatar: '',
+  realName: '',
+  gender: undefined,
+  department: '',
+  major: '',
+  position: '',
+  specialty: '',
+  degree: '',
+  bankName: '',
+  bankCardNumber: '',
+  introduction: '',
 })
 
 // =========== 表格控制部分 ===========
@@ -205,11 +231,7 @@ const handleCurrentChange = (val) => {
 
 // 查询
 const getTableData = async () => {
-  const table = await getUserInfoList({
-    page: page.value,
-    pageSize: pageSize.value,
-    ...searchInfo.value,
-  })
+  const table = await getTeacherInfoList({ page: page.value, pageSize: pageSize.value, ...searchInfo.value })
   if (table.code === 0) {
     tableData.value = table.data.list
     total.value = table.data.total
@@ -224,8 +246,7 @@ getTableData()
 
 // 获取需要的字典 可能为空 按需保留
 const setOptions = async () => {
-  identityOptions.value = await getDictFunc('identity')
-  checkOptions.value = await getDictFunc('check')
+  genderOptions.value = await getDictFunc('gender')
 }
 
 // 获取需要的字典 可能为空 按需保留
@@ -243,9 +264,9 @@ const deleteRow = (row) => {
   ElMessageBox.confirm('确定要删除吗?', '提示', {
     confirmButtonText: '确定',
     cancelButtonText: '取消',
-    type: 'warning',
+    type: 'warning'
   }).then(() => {
-    deleteUserInfoFunc(row)
+    deleteTeacherInfoFunc(row)
   })
 }
 
@@ -258,19 +279,19 @@ const onDelete = async () => {
   if (multipleSelection.value.length === 0) {
     ElMessage({
       type: 'warning',
-      message: '请选择要删除的数据',
+      message: '请选择要删除的数据'
     })
     return
   }
   multipleSelection.value &&
-    multipleSelection.value.map((item) => {
+    multipleSelection.value.map(item => {
       ids.push(item.ID)
     })
-  const res = await deleteUserInfoByIds({ ids })
+  const res = await deleteTeacherInfoByIds({ ids })
   if (res.code === 0) {
     ElMessage({
       type: 'success',
-      message: '删除成功',
+      message: '删除成功'
     })
     if (tableData.value.length === ids.length && page.value > 1) {
       page.value--
@@ -284,22 +305,22 @@ const onDelete = async () => {
 const type = ref('')
 
 // 更新行
-const updateUserInfoFunc = async (row) => {
-  const res = await findUserInfo({ ID: row.ID })
+const updateTeacherInfoFunc = async (row) => {
+  const res = await findTeacherInfo({ ID: row.ID })
   type.value = 'update'
   if (res.code === 0) {
-    formData.value = res.data.reuserInfo
+    formData.value = res.data.reteacherInfo
     dialogFormVisible.value = true
   }
 }
 
 // 删除行
-const deleteUserInfoFunc = async (row) => {
-  const res = await deleteUserInfo({ ID: row.ID, identity: row.identity })
+const deleteTeacherInfoFunc = async (row) => {
+  const res = await deleteTeacherInfo({ ID: row.ID })
   if (res.code === 0) {
     ElMessage({
       type: 'success',
-      message: '删除成功',
+      message: '删除成功'
     })
     if (tableData.value.length === 1 && page.value > 1) {
       page.value--
@@ -321,11 +342,23 @@ const openDialog = () => {
 const closeDialog = () => {
   dialogFormVisible.value = false
   formData.value = {
-    password: '',
-    phone: '',
-    slat: '',
-    identity: undefined,
-    check: undefined,
+    personnelId: '',
+    officeId: '',
+    financialId: '',
+    uId: 0,
+    nickname: '',
+    email: '',
+    avatar: '',
+    realName: '',
+    gender: undefined,
+    department: '',
+    major: '',
+    position: '',
+    specialty: '',
+    degree: '',
+    bankName: '',
+    bankCardNumber: '',
+    introduction: '',
   }
 }
 // 弹窗确定
@@ -333,32 +366,25 @@ const enterDialog = async () => {
   let res
   switch (type.value) {
     case 'create':
-      res = await createUserInfo(formData.value)
+      res = await createTeacherInfo(formData.value)
       break
     case 'update':
-      res = await updateUserInfo(formData.value)
+      res = await updateTeacherInfo(formData.value)
       break
     default:
-      res = await createUserInfo(formData.value)
+      res = await createTeacherInfo(formData.value)
       break
   }
   if (res.code === 0) {
     ElMessage({
       type: 'success',
-      message: '创建/更改成功',
+      message: '创建/更改成功'
     })
     closeDialog()
     getTableData()
   }
 }
-// ============== 自定义部分结束 ===============
-const goUserDetail = (param) => {
-  if (param.identity === 1) {
-    router.push({ name: 'teacherInfo', query: { id: param.ID } })
-  } else {
-    router.push({ name: 'studentInfo', query: { id: param.ID } })
-  }
-}
 </script>
 
-<style></style>
+<style>
+</style>

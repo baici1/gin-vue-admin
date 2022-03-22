@@ -17,7 +17,7 @@ type UserInfoService struct {
 // Author [piexlmax](https://github.com/piexlmax)
 func (userInfoService *UserInfoService) CreateUserInfo(userInfo autocode.UserInfo) (err error) {
 	var user autocode.UserInfo
-	if errors.Is(global.GVA_DB.Where("phone=?", userInfo.Phone).First(&user).Error, gorm.ErrRecordNotFound) {
+	if !errors.Is(global.GVA_DB.Where("phone=?", userInfo.Phone).First(&user).Error, gorm.ErrRecordNotFound) {
 		return errors.New("用户已注册")
 	}
 	userInfo.Password = utils.MD5V([]byte(userInfo.Password))
@@ -28,7 +28,36 @@ func (userInfoService *UserInfoService) CreateUserInfo(userInfo autocode.UserInf
 // DeleteUserInfo 删除UserInfo记录
 // Author [piexlmax](https://github.com/piexlmax)
 func (userInfoService *UserInfoService) DeleteUserInfo(userInfo autocode.UserInfo) (err error) {
-	err = global.GVA_DB.Delete(&userInfo).Error
+	//使用事务进行连接删除
+	tx := global.GVA_DB.Begin()
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+		}
+	}()
+	if err := tx.Error; err != nil {
+		return err
+	}
+	//删除个人基本信息
+	if err = tx.Delete(&userInfo).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+	//删除个人的详情信息
+	if userInfo.Identity == 1 {
+		//删除老师信息
+		if err = tx.Where("u_id=?", int(userInfo.ID)).Delete(&autocode.TeacherInfo{}).Error; err != nil {
+			tx.Rollback()
+			return err
+		}
+	} else {
+		//删除学生信息
+		if err = tx.Where("u_id=?", int(userInfo.ID)).Delete(&autocode.StudentInfo{}).Error; err != nil {
+			tx.Rollback()
+			return err
+		}
+	}
+	tx.Commit()
 	return err
 }
 
