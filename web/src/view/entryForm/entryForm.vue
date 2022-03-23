@@ -1,8 +1,19 @@
-
 <template>
   <div>
     <div class="gva-search-box">
       <el-form :inline="true" :model="searchInfo" class="demo-form-inline">
+        <el-form-item label="参赛表名">
+          <el-input v-model="searchInfo.name" placeholder="搜索条件" />
+        </el-form-item>
+        <el-form-item label="竞赛编号">
+          <el-input v-model="searchInfo.cmpId" placeholder="搜索条件" />
+        </el-form-item>
+        <el-form-item label="获奖级别">
+          <el-input v-model="searchInfo.rank" placeholder="搜索条件" />
+        </el-form-item>
+        <el-form-item label="获奖名称">
+          <el-input v-model="searchInfo.achName" placeholder="搜索条件" />
+        </el-form-item>
         <el-form-item>
           <el-button size="small" type="primary" icon="search" @click="onSubmit">查询</el-button>
           <el-button size="small" icon="refresh" @click="onReset">重置</el-button>
@@ -41,11 +52,27 @@
         <el-table-column align="left" label="日期" width="180">
           <template #default="scope">{{ formatDate(scope.row.CreatedAt) }}</template>
         </el-table-column>
-        <el-table-column align="left" label="团队编号" prop="teamId" width="120" />
-        <el-table-column align="left" label="用户编号" prop="uId" width="120" />
-        <el-table-column align="left" label="身份" prop="identify" width="120">
-          <template #default="scope">{{ filterDict(scope.row.identify, teamIdentifyOptions) }}</template>
+        <el-table-column align="left" label="参赛表名" prop="name" width="120" />
+        <el-table-column align="left" label="竞赛编号" prop="cmpId" width="120" />
+        <el-table-column align="left" label="项目编号" prop="pId" width="120">
+          <template #default="scope">
+            <el-button
+              type="text"
+              size="small"
+              class="table-button"
+              @click="goEntryProject(scope.row)"
+            >
+              {{
+                scope.row.pId
+                  == 0 ? "创建项目" : "查看项目"
+              }}
+            </el-button>
+          </template>
         </el-table-column>
+        <el-table-column align="left" label="获奖级别" prop="rank" width="120">
+          <template #default="scope">{{ filterDict(scope.row.rank, awardOptions) }}</template>
+        </el-table-column>
+        <el-table-column align="left" label="获奖名称" prop="achName" width="120" />
         <el-table-column align="left" label="按钮组">
           <template #default="scope">
             <el-button
@@ -53,10 +80,10 @@
               icon="edit"
               size="small"
               class="table-button"
-              @click="updateTeamMemberFunc(scope.row)"
+              @click="updateEntryFormFunc(scope.row)"
             >变更</el-button>
             <el-button type="text" icon="delete" size="small" @click="deleteRow(scope.row)">删除</el-button>
-            <el-button type="text" icon="view" size="small" @click="goUserDetail(scope.row)">详情</el-button>
+            <el-button type="text" icon="view" size="small" @click="goEntryMember(scope.row)">人员详情</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -74,26 +101,27 @@
     </div>
     <el-dialog v-model="dialogFormVisible" :before-close="closeDialog" title="弹窗操作">
       <el-form :model="formData" label-position="right" label-width="80px">
-        <!-- <el-form-item label="团队编号:">
-          <el-input v-model.number="formData.teamId" clearable placeholder="请输入" />
-        </el-form-item>-->
-        <el-form-item label="用户编号:">
-          <el-input
-            v-model.number="formData.uId"
-            clearable
-            placeholder="请输入"
-            :disabled="type == 'update'"
-          />
+        <el-form-item label="参赛表名:">
+          <el-input v-model="formData.name" clearable placeholder="请输入" />
         </el-form-item>
-        <el-form-item label="身份:">
-          <el-select v-model="formData.identify" placeholder="请选择" style="width:100%" clearable>
+        <el-form-item label="竞赛编号:">
+          <el-input v-model.number="formData.cmpId" clearable placeholder="请输入" />
+        </el-form-item>
+        <el-form-item label="项目编号:">
+          <el-input v-model.number="formData.pId" clearable placeholder="请输入" />
+        </el-form-item>
+        <el-form-item label="获奖级别:">
+          <el-select v-model="formData.rank" placeholder="请选择" style="width:100%" clearable>
             <el-option
-              v-for="(item, key) in teamIdentifyOptions"
+              v-for="(item, key) in awardOptions"
               :key="key"
               :label="item.label"
               :value="item.value"
             />
           </el-select>
+        </el-form-item>
+        <el-form-item label="获奖名称:">
+          <el-input v-model="formData.achName" clearable placeholder="请输入" />
         </el-form-item>
       </el-form>
       <template #footer>
@@ -108,33 +136,34 @@
 
 <script>
 export default {
-  name: 'TeamMember'
+  name: 'EntryForm'
 }
 </script>
 
 <script setup>
 import {
-  createTeamMember,
-  deleteTeamMember,
-  deleteTeamMemberByIds,
-  updateTeamMember,
-  findTeamMember,
-  getTeamMemberList
-} from '@/api/teamMember'
+  createEntryForm,
+  deleteEntryForm,
+  deleteEntryFormByIds,
+  updateEntryForm,
+  findEntryForm,
+  getEntryFormList
+} from '@/api/entryForm'
 
 // 全量引入格式化工具 请按需保留
 import { getDictFunc, formatDate, filterDict } from '@/utils/format'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { ref } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-const route = useRoute()
+import { useRouter } from 'vue-router'
 const router = useRouter()
 // 自动化生成的字典（可能为空）以及字段
-const teamIdentifyOptions = ref([])
+const awardOptions = ref([])
 const formData = ref({
-  teamId: +route.query.teamId,
-  uId: 0,
-  identify: undefined,
+  name: '',
+  cmpId: 0,
+  pId: 0,
+  rank: undefined,
+  achName: '',
 })
 
 // =========== 表格控制部分 ===========
@@ -170,7 +199,7 @@ const handleCurrentChange = (val) => {
 
 // 查询
 const getTableData = async () => {
-  const table = await getTeamMemberList({ page: page.value, pageSize: pageSize.value, ...searchInfo.value, teamId: +route.query.teamId })
+  const table = await getEntryFormList({ page: page.value, pageSize: pageSize.value, ...searchInfo.value })
   if (table.code === 0) {
     tableData.value = table.data.list
     total.value = table.data.total
@@ -185,7 +214,7 @@ getTableData()
 
 // 获取需要的字典 可能为空 按需保留
 const setOptions = async () => {
-  teamIdentifyOptions.value = await getDictFunc('teamIdentify')
+  awardOptions.value = await getDictFunc('award')
 }
 
 // 获取需要的字典 可能为空 按需保留
@@ -205,7 +234,7 @@ const deleteRow = (row) => {
     cancelButtonText: '取消',
     type: 'warning'
   }).then(() => {
-    deleteTeamMemberFunc(row)
+    deleteEntryFormFunc(row)
   })
 }
 
@@ -226,7 +255,7 @@ const onDelete = async () => {
     multipleSelection.value.map(item => {
       ids.push(item.ID)
     })
-  const res = await deleteTeamMemberByIds({ ids })
+  const res = await deleteEntryFormByIds({ ids })
   if (res.code === 0) {
     ElMessage({
       type: 'success',
@@ -244,18 +273,18 @@ const onDelete = async () => {
 const type = ref('')
 
 // 更新行
-const updateTeamMemberFunc = async (row) => {
-  const res = await findTeamMember({ ID: row.ID })
+const updateEntryFormFunc = async (row) => {
+  const res = await findEntryForm({ ID: row.ID })
   type.value = 'update'
   if (res.code === 0) {
-    formData.value = res.data.reteamMember
+    formData.value = res.data.reentryForm
     dialogFormVisible.value = true
   }
 }
 
 // 删除行
-const deleteTeamMemberFunc = async (row) => {
-  const res = await deleteTeamMember({ ID: row.ID })
+const deleteEntryFormFunc = async (row) => {
+  const res = await deleteEntryForm({ ID: row.ID })
   if (res.code === 0) {
     ElMessage({
       type: 'success',
@@ -281,24 +310,25 @@ const openDialog = () => {
 const closeDialog = () => {
   dialogFormVisible.value = false
   formData.value = {
-    teamId: +route.query.teamId,
-    uId: 0,
-    identify: undefined,
+    name: '',
+    cmpId: 0,
+    pId: 0,
+    rank: undefined,
+    achName: '',
   }
 }
 // 弹窗确定
 const enterDialog = async () => {
   let res
-  formData.value.teamId = +route.query.teamId
   switch (type.value) {
     case 'create':
-      res = await createTeamMember(formData.value)
+      res = await createEntryForm(formData.value)
       break
     case 'update':
-      res = await updateTeamMember(formData.value)
+      res = await updateEntryForm(formData.value)
       break
     default:
-      res = await createTeamMember(formData.value)
+      res = await createEntryForm(formData.value)
       break
   }
   if (res.code === 0) {
@@ -311,15 +341,18 @@ const enterDialog = async () => {
   }
 }
 
-const goUserDetail = async (param) => {
-  if (param.identity === 0) {
-    router.push({ name: 'teacherInfo', query: { id: param.uId } })
-  } else {
-    router.push({ name: 'studentInfo', query: { id: param.uId } })
+// ============== 自定义部分 ===============
+const goEntryProject = async (param) => {
+  if (param.companyId === 0) {
+    router.push({ name: 'projectInfo' })
+    return
   }
+  router.push({ name: 'projectInfo', query: { 'id': param.pId } })
+}
+const goEntryMember = async (param) => {
+  router.push({ name: 'entryMember', query: { 'formId': param.ID } })
 }
 </script>
 
 <style>
 </style>
-

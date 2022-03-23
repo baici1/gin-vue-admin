@@ -1,8 +1,10 @@
-
 <template>
   <div>
     <div class="gva-search-box">
       <el-form :inline="true" :model="searchInfo" class="demo-form-inline">
+        <el-form-item label="身份">
+          <el-input v-model="searchInfo.identify" placeholder="搜索条件" />
+        </el-form-item>
         <el-form-item>
           <el-button size="small" type="primary" icon="search" @click="onSubmit">查询</el-button>
           <el-button size="small" icon="refresh" @click="onReset">重置</el-button>
@@ -41,11 +43,12 @@
         <el-table-column align="left" label="日期" width="180">
           <template #default="scope">{{ formatDate(scope.row.CreatedAt) }}</template>
         </el-table-column>
-        <el-table-column align="left" label="团队编号" prop="teamId" width="120" />
+        <el-table-column align="left" label="参赛表编号" prop="formId" width="120" />
         <el-table-column align="left" label="用户编号" prop="uId" width="120" />
         <el-table-column align="left" label="身份" prop="identify" width="120">
           <template #default="scope">{{ filterDict(scope.row.identify, teamIdentifyOptions) }}</template>
         </el-table-column>
+        <el-table-column align="left" label="排序级别" prop="order" width="120" />
         <el-table-column align="left" label="按钮组">
           <template #default="scope">
             <el-button
@@ -53,7 +56,7 @@
               icon="edit"
               size="small"
               class="table-button"
-              @click="updateTeamMemberFunc(scope.row)"
+              @click="updateEntryMemberFunc(scope.row)"
             >变更</el-button>
             <el-button type="text" icon="delete" size="small" @click="deleteRow(scope.row)">删除</el-button>
             <el-button type="text" icon="view" size="small" @click="goUserDetail(scope.row)">详情</el-button>
@@ -74,16 +77,11 @@
     </div>
     <el-dialog v-model="dialogFormVisible" :before-close="closeDialog" title="弹窗操作">
       <el-form :model="formData" label-position="right" label-width="80px">
-        <!-- <el-form-item label="团队编号:">
-          <el-input v-model.number="formData.teamId" clearable placeholder="请输入" />
-        </el-form-item>-->
+        <el-form-item label="参赛表编号:">
+          <el-input v-model.number="formData.formId" clearable placeholder="请输入" />
+        </el-form-item>
         <el-form-item label="用户编号:">
-          <el-input
-            v-model.number="formData.uId"
-            clearable
-            placeholder="请输入"
-            :disabled="type == 'update'"
-          />
+          <el-input v-model.number="formData.uId" clearable placeholder="请输入" />
         </el-form-item>
         <el-form-item label="身份:">
           <el-select v-model="formData.identify" placeholder="请选择" style="width:100%" clearable>
@@ -94,6 +92,9 @@
               :value="item.value"
             />
           </el-select>
+        </el-form-item>
+        <el-form-item label="排序级别:">
+          <el-input v-model.number="formData.order" clearable placeholder="请输入" />
         </el-form-item>
       </el-form>
       <template #footer>
@@ -108,19 +109,19 @@
 
 <script>
 export default {
-  name: 'TeamMember'
+  name: 'EntryMember'
 }
 </script>
 
 <script setup>
 import {
-  createTeamMember,
-  deleteTeamMember,
-  deleteTeamMemberByIds,
-  updateTeamMember,
-  findTeamMember,
-  getTeamMemberList
-} from '@/api/teamMember'
+  createEntryMember,
+  deleteEntryMember,
+  deleteEntryMemberByIds,
+  updateEntryMember,
+  findEntryMember,
+  getEntryMemberList
+} from '@/api/entryMember'
 
 // 全量引入格式化工具 请按需保留
 import { getDictFunc, formatDate, filterDict } from '@/utils/format'
@@ -132,9 +133,10 @@ const router = useRouter()
 // 自动化生成的字典（可能为空）以及字段
 const teamIdentifyOptions = ref([])
 const formData = ref({
-  teamId: +route.query.teamId,
+  formId: +route.query.formId,
   uId: 0,
   identify: undefined,
+  order: 0,
 })
 
 // =========== 表格控制部分 ===========
@@ -170,7 +172,7 @@ const handleCurrentChange = (val) => {
 
 // 查询
 const getTableData = async () => {
-  const table = await getTeamMemberList({ page: page.value, pageSize: pageSize.value, ...searchInfo.value, teamId: +route.query.teamId })
+  const table = await getEntryMemberList({ page: page.value, pageSize: pageSize.value, ...searchInfo.value, formId: +route.query.formId })
   if (table.code === 0) {
     tableData.value = table.data.list
     total.value = table.data.total
@@ -205,7 +207,7 @@ const deleteRow = (row) => {
     cancelButtonText: '取消',
     type: 'warning'
   }).then(() => {
-    deleteTeamMemberFunc(row)
+    deleteEntryMemberFunc(row)
   })
 }
 
@@ -226,7 +228,7 @@ const onDelete = async () => {
     multipleSelection.value.map(item => {
       ids.push(item.ID)
     })
-  const res = await deleteTeamMemberByIds({ ids })
+  const res = await deleteEntryMemberByIds({ ids })
   if (res.code === 0) {
     ElMessage({
       type: 'success',
@@ -244,18 +246,18 @@ const onDelete = async () => {
 const type = ref('')
 
 // 更新行
-const updateTeamMemberFunc = async (row) => {
-  const res = await findTeamMember({ ID: row.ID })
+const updateEntryMemberFunc = async (row) => {
+  const res = await findEntryMember({ ID: row.ID })
   type.value = 'update'
   if (res.code === 0) {
-    formData.value = res.data.reteamMember
+    formData.value = res.data.reentryMember
     dialogFormVisible.value = true
   }
 }
 
 // 删除行
-const deleteTeamMemberFunc = async (row) => {
-  const res = await deleteTeamMember({ ID: row.ID })
+const deleteEntryMemberFunc = async (row) => {
+  const res = await deleteEntryMember({ ID: row.ID })
   if (res.code === 0) {
     ElMessage({
       type: 'success',
@@ -281,24 +283,25 @@ const openDialog = () => {
 const closeDialog = () => {
   dialogFormVisible.value = false
   formData.value = {
-    teamId: +route.query.teamId,
+    formId: +route.query.formId,
     uId: 0,
     identify: undefined,
+    order: 0,
   }
 }
 // 弹窗确定
 const enterDialog = async () => {
   let res
-  formData.value.teamId = +route.query.teamId
+  formData.value.formId = +route.query.formId
   switch (type.value) {
     case 'create':
-      res = await createTeamMember(formData.value)
+      res = await createEntryMember(formData.value)
       break
     case 'update':
-      res = await updateTeamMember(formData.value)
+      res = await updateEntryMember(formData.value)
       break
     default:
-      res = await createTeamMember(formData.value)
+      res = await createEntryMember(formData.value)
       break
   }
   if (res.code === 0) {
@@ -322,4 +325,3 @@ const goUserDetail = async (param) => {
 
 <style>
 </style>
-
