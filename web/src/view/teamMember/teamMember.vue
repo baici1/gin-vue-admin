@@ -1,10 +1,8 @@
+
 <template>
   <div>
     <div class="gva-search-box">
       <el-form :inline="true" :model="searchInfo" class="demo-form-inline">
-        <el-form-item label="手机号">
-          <el-input v-model="searchInfo.phone" placeholder="搜索条件" />
-        </el-form-item>
         <el-form-item>
           <el-button size="small" type="primary" icon="search" @click="onSubmit">查询</el-button>
           <el-button size="small" icon="refresh" @click="onReset">重置</el-button>
@@ -16,7 +14,7 @@
         <el-button size="small" type="primary" icon="plus" @click="openDialog">新增</el-button>
         <el-popover v-model:visible="deleteVisible" placement="top" width="160">
           <p>确定要删除吗？</p>
-          <div style="text-align: right; margin-top: 8px">
+          <div style="text-align: right; margin-top: 8px;">
             <el-button size="small" type="text" @click="deleteVisible = false">取消</el-button>
             <el-button size="small" type="primary" @click="onDelete">确定</el-button>
           </div>
@@ -24,7 +22,7 @@
             <el-button
               icon="delete"
               size="small"
-              style="margin-left: 10px"
+              style="margin-left: 10px;"
               :disabled="!multipleSelection.length"
               @click="deleteVisible = true"
             >删除</el-button>
@@ -41,31 +39,12 @@
       >
         <el-table-column type="selection" width="55" />
         <el-table-column align="left" label="日期" width="180">
-          <template #default="scope">
-            {{
-              formatDate(scope.row.CreatedAt)
-            }}
-          </template>
+          <template #default="scope">{{ formatDate(scope.row.CreatedAt) }}</template>
         </el-table-column>
-        <el-table-column align="left" label="用户编号" prop="ID" width="120" />
-        <el-table-column align="left" label="手机号" prop="phone" width="120" />
-        <!-- <el-table-column align="left" label="密码" prop="password" width="120" /> -->
-        <el-table-column align="left" label="备注" prop="slat" width="120" />
-        <el-table-column align="left" label="身份" prop="identity" width="120">
-          <template #default="scope">
-            <el-tag
-              class="ml-2"
-              :type="ChooseTagType(scope.row.identity, identityOptions)"
-            >{{ filterDict(scope.row.identity, identityOptions) }}</el-tag>
-          </template>
-        </el-table-column>
-        <el-table-column align="left" label="审核" prop="check" width="120">
-          <template #default="scope">
-            <el-tag
-              class="ml-2"
-              :type="ChooseTagType(scope.row.check, checkOptions)"
-            >{{ filterDict(scope.row.check, checkOptions) }}</el-tag>
-          </template>
+        <el-table-column align="left" label="团队编号" prop="teamId" width="120" />
+        <el-table-column align="left" label="用户编号" prop="uId" width="120" />
+        <el-table-column align="left" label="身份" prop="identify" width="120">
+          <template #default="scope">{{ filterDict(scope.row.identify, teamIdentifyOptions) }}</template>
         </el-table-column>
         <el-table-column align="left" label="按钮组">
           <template #default="scope">
@@ -74,10 +53,10 @@
               icon="edit"
               size="small"
               class="table-button"
-              @click="updateUserInfoFunc(scope.row)"
+              @click="updateTeamMemberFunc(scope.row)"
             >变更</el-button>
             <el-button type="text" icon="delete" size="small" @click="deleteRow(scope.row)">删除</el-button>
-            <el-button type="text" icon="view" size="small" @click="goUserDetail(scope.row)">详情</el-button>
+            <el-button type="text" icon="view" size="small" @click="goUserDetail(scope.row)">人员详情</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -95,29 +74,21 @@
     </div>
     <el-dialog v-model="dialogFormVisible" :before-close="closeDialog" title="弹窗操作">
       <el-form :model="formData" label-position="right" label-width="80px">
-        <el-form-item label="手机号:">
-          <el-input v-model="formData.phone" clearable placeholder="请输入" />
-        </el-form-item>
-        <el-form-item label="密码:">
-          <el-input v-model="formData.password" clearable placeholder="请输入" disabled />
-        </el-form-item>
-        <el-form-item label="备注:">
-          <el-input v-model="formData.slat" clearable placeholder="请输入" />
+        <!-- <el-form-item label="团队编号:">
+          <el-input v-model.number="formData.teamId" clearable placeholder="请输入" />
+        </el-form-item>-->
+        <el-form-item label="用户编号:">
+          <el-input
+            v-model.number="formData.uId"
+            clearable
+            placeholder="请输入"
+            :disabled="type == 'update'"
+          />
         </el-form-item>
         <el-form-item label="身份:">
-          <el-select v-model="formData.identity" placeholder="请选择" style="width: 100%" clearable>
+          <el-select v-model="formData.identify" placeholder="请选择" style="width:100%" clearable>
             <el-option
-              v-for="(item, key) in identityOptions"
-              :key="key"
-              :label="item.label"
-              :value="item.value"
-            />
-          </el-select>
-        </el-form-item>
-        <el-form-item label="审核:">
-          <el-select v-model="formData.check" placeholder="请选择" style="width: 100%" clearable>
-            <el-option
-              v-for="(item, key) in checkOptions"
+              v-for="(item, key) in teamIdentifyOptions"
               :key="key"
               :label="item.label"
               :value="item.value"
@@ -137,40 +108,33 @@
 
 <script>
 export default {
-  name: 'UserInfo',
+  name: 'TeamMember'
 }
 </script>
 
 <script setup>
-import { ChooseTagType } from '@/utils/tools'
 import {
-  createUserInfo,
-  deleteUserInfo,
-  deleteUserInfoByIds,
-  updateUserInfo,
-  findUserInfo,
-  getUserInfoList,
-} from '@/api/userInfo'
+  createTeamMember,
+  deleteTeamMember,
+  deleteTeamMemberByIds,
+  updateTeamMember,
+  findTeamMember,
+  getTeamMemberList
+} from '@/api/teamMember'
 
 // 全量引入格式化工具 请按需保留
-import {
-  getDictFunc,
-  formatDate,
-  filterDict,
-} from '@/utils/format'
+import { getDictFunc, formatDate, filterDict } from '@/utils/format'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
+const route = useRoute()
 const router = useRouter()
 // 自动化生成的字典（可能为空）以及字段
-const identityOptions = ref([])
-const checkOptions = ref([])
+const teamIdentifyOptions = ref([])
 const formData = ref({
-  password: '',
-  phone: '',
-  slat: '',
-  identity: undefined,
-  check: undefined,
+  teamId: +route.query.teamId,
+  uId: 0,
+  identify: undefined,
 })
 
 // =========== 表格控制部分 ===========
@@ -206,11 +170,7 @@ const handleCurrentChange = (val) => {
 
 // 查询
 const getTableData = async () => {
-  const table = await getUserInfoList({
-    page: page.value,
-    pageSize: pageSize.value,
-    ...searchInfo.value,
-  })
+  const table = await getTeamMemberList({ page: page.value, pageSize: pageSize.value, ...searchInfo.value, teamId: +route.query.teamId })
   if (table.code === 0) {
     tableData.value = table.data.list
     total.value = table.data.total
@@ -225,8 +185,7 @@ getTableData()
 
 // 获取需要的字典 可能为空 按需保留
 const setOptions = async () => {
-  identityOptions.value = await getDictFunc('identity')
-  checkOptions.value = await getDictFunc('check')
+  teamIdentifyOptions.value = await getDictFunc('teamIdentify')
 }
 
 // 获取需要的字典 可能为空 按需保留
@@ -244,9 +203,9 @@ const deleteRow = (row) => {
   ElMessageBox.confirm('确定要删除吗?', '提示', {
     confirmButtonText: '确定',
     cancelButtonText: '取消',
-    type: 'warning',
+    type: 'warning'
   }).then(() => {
-    deleteUserInfoFunc(row)
+    deleteTeamMemberFunc(row)
   })
 }
 
@@ -259,19 +218,19 @@ const onDelete = async () => {
   if (multipleSelection.value.length === 0) {
     ElMessage({
       type: 'warning',
-      message: '请选择要删除的数据',
+      message: '请选择要删除的数据'
     })
     return
   }
   multipleSelection.value &&
-    multipleSelection.value.map((item) => {
+    multipleSelection.value.map(item => {
       ids.push(item.ID)
     })
-  const res = await deleteUserInfoByIds({ ids })
+  const res = await deleteTeamMemberByIds({ ids })
   if (res.code === 0) {
     ElMessage({
       type: 'success',
-      message: '删除成功',
+      message: '删除成功'
     })
     if (tableData.value.length === ids.length && page.value > 1) {
       page.value--
@@ -285,22 +244,22 @@ const onDelete = async () => {
 const type = ref('')
 
 // 更新行
-const updateUserInfoFunc = async (row) => {
-  const res = await findUserInfo({ ID: row.ID })
+const updateTeamMemberFunc = async (row) => {
+  const res = await findTeamMember({ ID: row.ID })
   type.value = 'update'
   if (res.code === 0) {
-    formData.value = res.data.reuserInfo
+    formData.value = res.data.reteamMember
     dialogFormVisible.value = true
   }
 }
 
 // 删除行
-const deleteUserInfoFunc = async (row) => {
-  const res = await deleteUserInfo({ ID: row.ID, identity: row.identity })
+const deleteTeamMemberFunc = async (row) => {
+  const res = await deleteTeamMember({ ID: row.ID })
   if (res.code === 0) {
     ElMessage({
       type: 'success',
-      message: '删除成功',
+      message: '删除成功'
     })
     if (tableData.value.length === 1 && page.value > 1) {
       page.value--
@@ -322,44 +281,45 @@ const openDialog = () => {
 const closeDialog = () => {
   dialogFormVisible.value = false
   formData.value = {
-    password: '',
-    phone: '',
-    slat: '',
-    identity: undefined,
-    check: undefined,
+    teamId: +route.query.teamId,
+    uId: 0,
+    identify: undefined,
   }
 }
 // 弹窗确定
 const enterDialog = async () => {
   let res
+  formData.value.teamId = +route.query.teamId
   switch (type.value) {
     case 'create':
-      res = await createUserInfo(formData.value)
+      res = await createTeamMember(formData.value)
       break
     case 'update':
-      res = await updateUserInfo(formData.value)
+      res = await updateTeamMember(formData.value)
       break
     default:
-      res = await createUserInfo(formData.value)
+      res = await createTeamMember(formData.value)
       break
   }
   if (res.code === 0) {
     ElMessage({
       type: 'success',
-      message: '创建/更改成功',
+      message: '创建/更改成功'
     })
     closeDialog()
     getTableData()
   }
 }
-// ============== 自定义部分结束 ===============
-const goUserDetail = (param) => {
+
+const goUserDetail = async (param) => {
   if (param.identity === 0) {
-    router.push({ name: 'teacherInfo', query: { id: param.ID } })
+    router.push({ name: 'teacherInfo', query: { id: param.uId } })
   } else {
-    router.push({ name: 'studentInfo', query: { id: param.ID } })
+    router.push({ name: 'studentInfo', query: { id: param.uId } })
   }
 }
 </script>
 
-<style></style>
+<style>
+</style>
+
