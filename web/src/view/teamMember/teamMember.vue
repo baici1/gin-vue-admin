@@ -6,6 +6,7 @@
         <el-form-item>
           <el-button size="small" type="primary" icon="search" @click="onSubmit">查询</el-button>
           <el-button size="small" icon="refresh" @click="onReset">重置</el-button>
+          <el-button size="small" icon="refresh" @click="back">返回</el-button>
         </el-form-item>
       </el-form>
     </div>
@@ -317,6 +318,10 @@ const goUserDetail = async (param) => {
   } else {
     router.push({ name: 'studentInfo', query: { id: param.uId } })
   }
+}
+// 返回按钮
+const back = () => {
+  router.go(-1)
 }
 </script>
 

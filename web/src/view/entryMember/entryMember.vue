@@ -8,6 +8,7 @@
         <el-form-item>
           <el-button size="small" type="primary" icon="search" @click="onSubmit">查询</el-button>
           <el-button size="small" icon="refresh" @click="onReset">重置</el-button>
+          <el-button size="small" icon="back" @click="back">返回</el-button>
         </el-form-item>
       </el-form>
     </div>
@@ -59,7 +60,7 @@
               @click="updateEntryMemberFunc(scope.row)"
             >变更</el-button>
             <el-button type="text" icon="delete" size="small" @click="deleteRow(scope.row)">删除</el-button>
-            <el-button type="text" icon="view" size="small" @click="goUserDetail(scope.row)">详情</el-button>
+            <el-button type="text" icon="view" size="small" @click="checkComponent(scope.row)">详情</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -104,6 +105,11 @@
         </div>
       </template>
     </el-dialog>
+    <!-- 抽屉展示用户详细信息 -->
+    <el-drawer v-model="drawer" title="I am the title" direction="rtl">
+      <studentInfoFormVue v-if="Useridentify" :uid="UserID" />
+      <teacherInfoFormVue v-else :uid="UserID" />
+    </el-drawer>
   </div>
 </template>
 
@@ -128,6 +134,8 @@ import { getDictFunc, formatDate, filterDict } from '@/utils/format'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import teacherInfoFormVue from '../teacherInfo/teacherInfoForm.vue'
+import studentInfoFormVue from '../studentInfo/studentInfoForm.vue'
 const route = useRoute()
 const router = useRouter()
 // 自动化生成的字典（可能为空）以及字段
@@ -314,12 +322,30 @@ const enterDialog = async () => {
   }
 }
 
-const goUserDetail = async (param) => {
-  if (param.identity === 0) {
-    router.push({ name: 'teacherInfo', query: { id: param.uId } })
+// =========== 自定义部分 ===========
+const drawer = ref(false)
+const UserID = ref(0)
+const Useridentify = ref(true)
+// const goUserDetail = async (param) => {
+//   if (param.identity === 0) {
+//     router.push({ name: 'teacherInfo', query: { id: param.uId } })
+//   } else {
+//     router.push({ name: 'studentInfo', query: { id: param.uId } })
+//   }
+// }
+const checkComponent = async (param) => {
+  console.log('%c 🍼️ param: ', 'font-size:20px;background-color: #2EAFB0;color:#fff;', param)
+  UserID.value = param.uId
+  if (param.identify) {
+    Useridentify.value = true
   } else {
-    router.push({ name: 'studentInfo', query: { id: param.uId } })
+    Useridentify.value = false
   }
+  drawer.value = true
+}
+// 返回按钮
+const back = () => {
+  router.go(-1)
 }
 </script>
 
