@@ -6,6 +6,7 @@ import (
 	"github.com/flipped-aurora/gin-vue-admin/server/model/autocode"
 	autoCodeReq "github.com/flipped-aurora/gin-vue-admin/server/model/autocode/request"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/common/request"
+	"github.com/flipped-aurora/gin-vue-admin/server/model/system"
 	"github.com/flipped-aurora/gin-vue-admin/server/utils"
 	"gorm.io/gorm"
 )
@@ -101,4 +102,42 @@ func (userInfoService *UserInfoService) GetUserInfoInfoList(info autoCodeReq.Use
 	}
 	err = db.Limit(limit).Offset(offset).Find(&userInfos).Error
 	return err, userInfos, total
+}
+
+//CreateUserByRegister
+/* @Description: 用户注册
+ * @receiver userInfoService
+ * @param register
+ * @return err
+ */
+func (userInfoService *UserInfoService) CreateUserByRegister(userInfo autocode.UserInfo) (err error) {
+	var user autocode.UserInfo
+	//重复注册
+	if !errors.Is(global.GVA_DB.Where("phone=?", userInfo.Phone).First(&user).Error, gorm.ErrRecordNotFound) {
+		return errors.New("用户已注册")
+	}
+	//密码加密
+	userInfo.Password = utils.MD5V([]byte(userInfo.Password))
+	//判断身份:如果是学生选择直接审核通过
+	if userInfo.Identity == 1 {
+		userInfo.Check = 1
+	}
+	err = global.GVA_DB.Create(&userInfo).Error
+	return
+}
+
+func (userInfoService *UserInfoService) UserToLogin(u autocode.UserInfo) (err error, userInter *autocode.UserInfo) {
+	var user autocode.UserInfo
+	//密码加密进行比较
+	u.Password = utils.MD5V([]byte(u.Password))
+	err = global.GVA_DB.Where("phone=? and password=?", u.Phone, u.Password).Preload("Authority").First(&user).Error
+	//如果可以找到
+	if err == nil {
+		var am system.SysMenu
+		ferr := global.GVA_DB.First(&am, "name = ? AND authority_id = ?", user.Authority.DefaultRouter, user.Identity).Error
+		if errors.Is(ferr, gorm.ErrRecordNotFound) {
+			user.Authority.DefaultRouter = "404"
+		}
+	}
+	return err, &user
 }

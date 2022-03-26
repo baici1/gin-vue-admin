@@ -140,3 +140,44 @@ func (userInfoApi *UserInfoApi) GetUserInfoList(c *gin.Context) {
 		}, "获取成功", c)
 	}
 }
+
+func (userInfoApi *UserInfoApi) CreateUserByRegister(c *gin.Context) {
+	var param autocodeReq.UserRegister
+	err := c.ShouldBind(&param)
+	//参数校验
+	if err != nil {
+		response.ValidatorError(err, c)
+		return
+	}
+	if err = userInfoService.CreateUserByRegister(autocode.UserInfo{
+		Password: param.Password,
+		Phone:    param.Phone,
+		Identity: param.Identity,
+	}); err != nil {
+		global.GVA_LOG.Error(param.Phone+"注册失败！", zap.Error(err))
+		response.FailWithMessage("注册失败！", c)
+	} else {
+		response.OkWithMessage("注册成功", c)
+	}
+}
+
+func (userInfoApi *UserInfoApi) UserToLogin(c *gin.Context) {
+	var param autocodeReq.UserLogin
+	err := c.ShouldBind(&param)
+	//参数校验
+	if err != nil {
+		response.ValidatorError(err, c)
+		return
+	}
+	//校验码验证：现阶段先不放
+	if err, user := userInfoService.UserToLogin(autocode.UserInfo{
+		Password: param.Password,
+		Phone:    param.Phone,
+	}); err != nil {
+		global.GVA_LOG.Error("登陆失败! 用户名不存在或者密码错误!", zap.Error(err))
+		response.FailWithMessage("用户名不存在或者密码错误", c)
+	} else {
+		//签发token
+		response.OkWithData(user, c)
+	}
+}

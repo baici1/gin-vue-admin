@@ -2,6 +2,7 @@ package core
 
 import (
 	"fmt"
+	"github.com/flipped-aurora/gin-vue-admin/server/utils"
 	"time"
 
 	"github.com/flipped-aurora/gin-vue-admin/server/global"
@@ -20,6 +21,10 @@ func RunWindowsServer() {
 		initialize.Redis()
 	}
 
+	//注册参数校验翻译器
+	if err := utils.InitTrans("zh"); err != nil {
+		global.GVA_LOG.Error("Validator Transition Tool Register Failed", zap.Error(err))
+	}
 	// 从db加载jwt数据
 	if global.GVA_DB != nil {
 		system.LoadAll()
