@@ -4,12 +4,20 @@ import (
 	"github.com/flipped-aurora/gin-vue-admin/server/global"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/autocode"
 	autocodeReq "github.com/flipped-aurora/gin-vue-admin/server/model/autocode/request"
+	autocodeRes "github.com/flipped-aurora/gin-vue-admin/server/model/autocode/response"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/common/request"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/common/response"
+	sys "github.com/flipped-aurora/gin-vue-admin/server/model/system"
+	systemReq "github.com/flipped-aurora/gin-vue-admin/server/model/system/request"
 	"github.com/flipped-aurora/gin-vue-admin/server/service"
+	"github.com/flipped-aurora/gin-vue-admin/server/utils"
 	"github.com/gin-gonic/gin"
+	"github.com/go-redis/redis/v8"
 	"go.uber.org/zap"
+	"strconv"
 )
+
+var jwtService = service.ServiceGroupApp.SystemServiceGroup.JwtService
 
 type UserInfoApi struct {
 }
@@ -170,14 +178,74 @@ func (userInfoApi *UserInfoApi) UserToLogin(c *gin.Context) {
 		return
 	}
 	//校验码验证：现阶段先不放
-	if err, user := userInfoService.UserToLogin(autocode.UserInfo{
-		Password: param.Password,
-		Phone:    param.Phone,
-	}); err != nil {
-		global.GVA_LOG.Error("登陆失败! 用户名不存在或者密码错误!", zap.Error(err))
-		response.FailWithMessage("用户名不存在或者密码错误", c)
+	if store.Verify(param.CaptchaId, param.Captcha, true) {
+		if err, user := userInfoService.UserToLogin(autocode.UserInfo{
+			Password: param.Password,
+			Phone:    param.Phone,
+		}); err != nil {
+			global.GVA_LOG.Error("登陆失败! 用户名不存在或者密码错误!", zap.Error(err))
+			response.FailWithMessage("用户名不存在或者密码错误", c)
+		} else {
+			//签发token
+			userInfoApi.tokenNext(c, *user)
+			//response.OkWithData(user, c)
+		}
 	} else {
-		//签发token
-		response.OkWithData(user, c)
+		response.FailWithMessage("验证码错误", c)
+	}
+}
+
+func (userInfoApi *UserInfoApi) tokenNext(c *gin.Context, user autocode.UserInfo) {
+	j := &utils.JWT{SigningKey: []byte(global.GVA_CONFIG.JWT.SigningKey)} // 唯一签名
+	claims := j.CreateClaims(systemReq.BaseClaims{
+		ID:          user.ID,
+		Username:    user.Phone,
+		AuthorityId: strconv.Itoa(user.Identity),
+	})
+	token, err := j.CreateToken(claims)
+	if err != nil {
+		global.GVA_LOG.Error("获取token失败!", zap.Error(err))
+		response.FailWithMessage("获取token失败", c)
+		return
+	}
+	if !global.GVA_CONFIG.System.UseMultipoint {
+		response.OkWithDetailed(autocodeRes.LoginResponse{
+			User:      user,
+			Token:     token,
+			ExpiresAt: claims.StandardClaims.ExpiresAt * 1000,
+		}, "登录成功", c)
+		return
+	}
+
+	if err, jwtStr := jwtService.GetRedisJWT(user.Phone); err == redis.Nil {
+		if err := jwtService.SetRedisJWT(token, user.Phone); err != nil {
+			global.GVA_LOG.Error("设置登录状态失败!", zap.Error(err))
+			response.FailWithMessage("设置登录状态失败", c)
+			return
+		}
+		response.OkWithDetailed(autocodeRes.LoginResponse{
+			User:      user,
+			Token:     token,
+			ExpiresAt: claims.StandardClaims.ExpiresAt * 1000,
+		}, "登录成功", c)
+	} else if err != nil {
+		global.GVA_LOG.Error("设置登录状态失败!", zap.Error(err))
+		response.FailWithMessage("设置登录状态失败", c)
+	} else {
+		var blackJWT sys.JwtBlacklist
+		blackJWT.Jwt = jwtStr
+		if err := jwtService.JsonInBlacklist(blackJWT); err != nil {
+			response.FailWithMessage("jwt作废失败", c)
+			return
+		}
+		if err := jwtService.SetRedisJWT(token, user.Phone); err != nil {
+			response.FailWithMessage("设置登录状态失败", c)
+			return
+		}
+		response.OkWithDetailed(autocodeRes.LoginResponse{
+			User:      user,
+			Token:     token,
+			ExpiresAt: claims.StandardClaims.ExpiresAt * 1000,
+		}, "登录成功", c)
 	}
 }

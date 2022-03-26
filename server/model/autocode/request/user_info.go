@@ -18,6 +18,8 @@ type UserRegister struct {
 }
 
 type UserLogin struct {
-	Phone    string `json:"phone" form:"phone" gorm:"column:phone;comment:手机号;" binding:"required"`
-	Password string `json:"password" form:"password" gorm:"column:password;comment:密码;size:255;" binding:"required"`
+	Phone     string `json:"phone" form:"phone" gorm:"column:phone;comment:手机号;" binding:"required"`
+	Password  string `json:"password" form:"password" gorm:"column:password;comment:密码;size:255;" binding:"required"`
+	Captcha   string `json:"captcha" form:"captcha" binding:"required"`     // 验证码
+	CaptchaId string `json:"captchaId" form:"captchaId" binding:"required"` // 验证码ID
 }
