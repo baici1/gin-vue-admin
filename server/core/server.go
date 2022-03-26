@@ -21,7 +21,7 @@ func RunWindowsServer() {
 		initialize.Redis()
 	}
 
-	//注册参数校验翻译器
+	//注册参数校验翻译器测试
 	if err := utils.InitTrans("zh"); err != nil {
 		global.GVA_LOG.Error("Validator Transition Tool Register Failed", zap.Error(err))
 	}
