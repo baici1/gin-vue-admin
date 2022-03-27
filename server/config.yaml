@@ -110,12 +110,12 @@ pgsql:
   log-mode: ""
   log-zap: false
 qiniu:
-  zone: ZoneHuaDong
-  bucket: ""
-  img-path: ""
+  zone: ZoneHuanan
+  bucket: "yay-web"
+  img-path: "http://project.yangdiy.cn"
   use-https: false
-  access-key: ""
-  secret-key: ""
+  access-key: "tuGQ_6xr0Db9yR5-9rkg5ZAFAgGNY2QnT3msd7TT"
+  secret-key: "ekydENYeTkzHJIHsrJiYlNnJaDNcfdu2FyqP3M5i"
   use-cdn-domains: false
 redis:
   db: 0
@@ -125,7 +125,7 @@ system:
   env: public
   addr: 8888
   db-type: mysql
-  oss-type: local
+  oss-type: qiniu
   use-multipoint: true
   use-redis: true
   iplimit-count: 15000
