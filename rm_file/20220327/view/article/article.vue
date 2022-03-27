@@ -2,24 +2,17 @@
   <div>
     <div class="gva-search-box">
       <el-form :inline="true" :model="searchInfo" class="demo-form-inline">
-        <el-form-item label="轮播图名称">
-          <el-input v-model="searchInfo.swiperName" placeholder="搜索条件" />
+        <el-form-item label="发布时间">
+          <el-input v-model="searchInfo.publishedTime" placeholder="搜索条件" />
         </el-form-item>
-        <el-form-item label="是否展示" prop="isShow">
-          <el-select v-model="searchInfo.isShow" clearable placeholder="请选择">
-            <el-option key="true" label="是" value="true" />
-            <el-option key="false" label="否" value="false" />
-          </el-select>
+        <el-form-item label="标题">
+          <el-input v-model="searchInfo.title" placeholder="搜索条件" />
         </el-form-item>
-        <el-form-item label="分组">
-          <el-select v-model="searchInfo.group" placeholder="搜索条件" style="width:100%" clearable>
-            <el-option
-              v-for="(item, key) in imgGropuOptions"
-              :key="key"
-              :label="item.label"
-              :value="item.value"
-            />
-          </el-select>
+        <el-form-item label="作者">
+          <el-input v-model="searchInfo.author" placeholder="搜索条件" />
+        </el-form-item>
+        <el-form-item label="文章类型">
+          <el-input v-model="searchInfo.type" placeholder="搜索条件" />
         </el-form-item>
         <el-form-item>
           <el-button size="small" type="primary" icon="search" @click="onSubmit">查询</el-button>
@@ -59,34 +52,24 @@
         <el-table-column align="left" label="日期" width="180">
           <template #default="scope">{{ formatDate(scope.row.CreatedAt) }}</template>
         </el-table-column>
-        <el-table-column align="left" label="轮播图名称" prop="swiperName" width="120" />
-        <el-table-column align="left" label="轮播图照片" prop="swiperPicture" width="120">
-          <template #default="scope">
-            <el-image
-              :src="scope.row.swiperPicture"
-              fit="cover"
-              :preview-src-list="[scope.row.swiperPicture]"
-              hide-on-click-modal
-            />
-          </template>
+        <el-table-column align="left" label="是否可评论" prop="commentabled" width="120">
+          <template #default="scope">{{ filterDict(scope.row.commentabled, boolOptions) }}</template>
         </el-table-column>
-        <el-table-column align="left" label="是否展示" prop="isShow" width="120">
-          <template #default="scope">
-            <el-switch
-              v-model="scope.row.isShow"
-              inline-prompt
-              active-text="是"
-              inactive-text="否"
-              disabled
-            />
-          </template>
+        <el-table-column align="left" label="是否发表" prop="published" width="120">
+          <template #default="scope">{{ filterDict(scope.row.published, boolOptions) }}</template>
         </el-table-column>
-        <el-table-column align="left" label="分组" prop="group" width="120">
-          <template #default="scope">
-            <el-tag>{{ filterDict(scope.row.group, imgGropuOptions) }}</el-tag>
-          </template>
+        <el-table-column align="left" label="发布时间" prop="publishedTime" width="120" />
+        <el-table-column align="left" label="标题" prop="title" width="120" />
+        <el-table-column align="left" label="引用" prop="description" width="120" />
+        <el-table-column align="left" label="内容" prop="content" width="120" />
+        <el-table-column align="left" label="浏览量" prop="views" width="120" />
+        <el-table-column align="left" label="作者" prop="author" width="120" />
+        <el-table-column align="left" label="文章类型" prop="type" width="120">
+          <template #default="scope">{{ filterDict(scope.row.type, articleTypeOptions) }}</template>
         </el-table-column>
-        <el-table-column align="left" label="前往路径" prop="goToUrl" width="180" />
+        <el-table-column align="left" label="置顶" prop="orderNum" width="120">
+          <template #default="scope">{{ filterDict(scope.row.orderNum, boolOptions) }}</template>
+        </el-table-column>
         <el-table-column align="left" label="按钮组">
           <template #default="scope">
             <el-button
@@ -94,7 +77,7 @@
               icon="edit"
               size="small"
               class="table-button"
-              @click="updateSwiperFunc(scope.row)"
+              @click="updateArticleFunc(scope.row)"
             >变更</el-button>
             <el-button type="text" icon="delete" size="small" @click="deleteRow(scope.row)">删除</el-button>
           </template>
@@ -114,30 +97,9 @@
     </div>
     <el-dialog v-model="dialogFormVisible" :before-close="closeDialog" title="弹窗操作">
       <el-form :model="formData" label-position="right" label-width="80px">
-        <el-form-item label="轮播图名称:">
-          <el-input v-model="formData.swiperName" clearable placeholder="请输入" />
-        </el-form-item>
-        <el-form-item label="轮播图照片:">
-          <!-- <el-input v-model="formData.swiperPicture" clearable placeholder="请输入" /> -->
-          <el-upload
-            class="avatar-uploader"
-            action="http://127.0.0.1:8888/fileUploadAndDownload/upload"
-            :show-file-list="false"
-            :on-success="handleAvatarSuccess"
-            :before-upload="beforeAvatarUpload"
-            :headers="{
-              'x-token': token
-            }"
-          >
-            <img v-if="formData.swiperPicture" :src="formData.swiperPicture" class="avatar" />
-            <el-icon v-else class="avatar-uploader-icon">
-              <Plus />
-            </el-icon>
-          </el-upload>
-        </el-form-item>
-        <el-form-item label="是否展示:">
+        <el-form-item label="是否可评论:">
           <el-switch
-            v-model="formData.isShow"
+            v-model="formData.commentabled"
             active-color="#13ce66"
             inactive-color="#ff4949"
             active-text="是"
@@ -145,18 +107,59 @@
             clearable
           />
         </el-form-item>
-        <el-form-item label="分组:">
-          <el-select v-model="formData.group" placeholder="请选择" style="width:100%" clearable>
+        <el-form-item label="是否发表:">
+          <el-switch
+            v-model="formData.published"
+            active-color="#13ce66"
+            inactive-color="#ff4949"
+            active-text="是"
+            inactive-text="否"
+            clearable
+          />
+        </el-form-item>
+        <el-form-item label="发布时间:">
+          <el-date-picker
+            v-model="formData.publishedTime"
+            type="date"
+            style="width:100%"
+            placeholder="选择日期"
+            clearable
+          />
+        </el-form-item>
+        <el-form-item label="标题:">
+          <el-input v-model="formData.title" clearable placeholder="请输入" />
+        </el-form-item>
+        <el-form-item label="引用:">
+          <el-input v-model="formData.description" clearable placeholder="请输入" />
+        </el-form-item>
+        <el-form-item label="内容:">
+          <el-input v-model="formData.content" clearable placeholder="请输入" />
+        </el-form-item>
+        <el-form-item label="浏览量:">
+          <el-input v-model.number="formData.views" clearable placeholder="请输入" />
+        </el-form-item>
+        <el-form-item label="作者:">
+          <el-input v-model="formData.author" clearable placeholder="请输入" />
+        </el-form-item>
+        <el-form-item label="文章类型:">
+          <el-select v-model="formData.type" placeholder="请选择" style="width:100%" clearable>
             <el-option
-              v-for="(item, key) in imgGropuOptions"
+              v-for="(item, key) in articleTypeOptions"
               :key="key"
               :label="item.label"
               :value="item.value"
             />
           </el-select>
         </el-form-item>
-        <el-form-item label="前往路径:">
-          <el-input v-model="formData.goToUrl" clearable placeholder="请输入" />
+        <el-form-item label="置顶:">
+          <el-switch
+            v-model="formData.orderNum"
+            active-color="#13ce66"
+            inactive-color="#ff4949"
+            active-text="是"
+            inactive-text="否"
+            clearable
+          />
         </el-form-item>
       </el-form>
       <template #footer>
@@ -171,36 +174,39 @@
 
 <script>
 export default {
-  name: 'Swiper'
+  name: 'Article'
 }
 </script>
 
 <script setup>
 import {
-  createSwiper,
-  deleteSwiper,
-  deleteSwiperByIds,
-  updateSwiper,
-  findSwiper,
-  getSwiperList
-} from '@/api/swiper'
+  createArticle,
+  deleteArticle,
+  deleteArticleByIds,
+  updateArticle,
+  findArticle,
+  getArticleList
+} from '@/api/article'
 
 // 全量引入格式化工具 请按需保留
-import { getDictFunc, formatDate, filterDict } from '@/utils/format'
+import { getDictFunc, formatDate, formatBoolean, filterDict } from '@/utils/format'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { ref } from 'vue'
-import { Plus } from '@element-plus/icons-vue'
-import { useUserStore } from '@/pinia/modules/user'
 
 // 自动化生成的字典（可能为空）以及字段
 const boolOptions = ref([])
-const imgGropuOptions = ref([])
+const articleTypeOptions = ref([])
 const formData = ref({
-  swiperName: '',
-  swiperPicture: '',
-  isShow: false,
-  group: undefined,
-  goToUrl: '',
+  commentabled: false,
+  published: false,
+  publishedTime: new Date(),
+  title: '',
+  description: '',
+  content: '',
+  views: 0,
+  author: '',
+  type: undefined,
+  orderNum: false,
 })
 
 // =========== 表格控制部分 ===========
@@ -219,8 +225,14 @@ const onReset = () => {
 const onSubmit = () => {
   page.value = 1
   pageSize.value = 10
-  if (searchInfo.value.isShow === '') {
-    searchInfo.value.isShow = null
+  if (searchInfo.value.commentabled === '') {
+    searchInfo.value.commentabled = null
+  }
+  if (searchInfo.value.published === '') {
+    searchInfo.value.published = null
+  }
+  if (searchInfo.value.orderNum === '') {
+    searchInfo.value.orderNum = null
   }
   getTableData()
 }
@@ -239,7 +251,7 @@ const handleCurrentChange = (val) => {
 
 // 查询
 const getTableData = async () => {
-  const table = await getSwiperList({ page: page.value, pageSize: pageSize.value, ...searchInfo.value })
+  const table = await getArticleList({ page: page.value, pageSize: pageSize.value, ...searchInfo.value })
   if (table.code === 0) {
     tableData.value = table.data.list
     total.value = table.data.total
@@ -255,7 +267,7 @@ getTableData()
 // 获取需要的字典 可能为空 按需保留
 const setOptions = async () => {
   boolOptions.value = await getDictFunc('bool')
-  imgGropuOptions.value = await getDictFunc('imgGropu')
+  articleTypeOptions.value = await getDictFunc('articleType')
 }
 
 // 获取需要的字典 可能为空 按需保留
@@ -275,7 +287,7 @@ const deleteRow = (row) => {
     cancelButtonText: '取消',
     type: 'warning'
   }).then(() => {
-    deleteSwiperFunc(row)
+    deleteArticleFunc(row)
   })
 }
 
@@ -296,7 +308,7 @@ const onDelete = async () => {
     multipleSelection.value.map(item => {
       ids.push(item.ID)
     })
-  const res = await deleteSwiperByIds({ ids })
+  const res = await deleteArticleByIds({ ids })
   if (res.code === 0) {
     ElMessage({
       type: 'success',
@@ -314,18 +326,18 @@ const onDelete = async () => {
 const type = ref('')
 
 // 更新行
-const updateSwiperFunc = async (row) => {
-  const res = await findSwiper({ ID: row.ID })
+const updateArticleFunc = async (row) => {
+  const res = await findArticle({ ID: row.ID })
   type.value = 'update'
   if (res.code === 0) {
-    formData.value = res.data.reswiper
+    formData.value = res.data.rearticle
     dialogFormVisible.value = true
   }
 }
 
 // 删除行
-const deleteSwiperFunc = async (row) => {
-  const res = await deleteSwiper({ ID: row.ID })
+const deleteArticleFunc = async (row) => {
+  const res = await deleteArticle({ ID: row.ID })
   if (res.code === 0) {
     ElMessage({
       type: 'success',
@@ -351,11 +363,16 @@ const openDialog = () => {
 const closeDialog = () => {
   dialogFormVisible.value = false
   formData.value = {
-    swiperName: '',
-    swiperPicture: '',
-    isShow: false,
-    group: undefined,
-    goToUrl: '',
+    commentabled: false,
+    published: false,
+    publishedTime: new Date(),
+    title: '',
+    description: '',
+    content: '',
+    views: 0,
+    author: '',
+    type: undefined,
+    orderNum: false,
   }
 }
 // 弹窗确定
@@ -363,13 +380,13 @@ const enterDialog = async () => {
   let res
   switch (type.value) {
     case 'create':
-      res = await createSwiper(formData.value)
+      res = await createArticle(formData.value)
       break
     case 'update':
-      res = await updateSwiper(formData.value)
+      res = await updateArticle(formData.value)
       break
     default:
-      res = await createSwiper(formData.value)
+      res = await createArticle(formData.value)
       break
   }
   if (res.code === 0) {
@@ -381,58 +398,7 @@ const enterDialog = async () => {
     getTableData()
   }
 }
-
-// ============== 自定义部分开始 ===============
-
-const userStore = useUserStore()
-const token = ref(userStore.token)
-const handleAvatarSuccess = (
-  response,
-  uploadFile
-) => {
-  formData.value.swiperPicture = response.data.file.url
-  // imageUrl.value = URL.createObjectURL(uploadFile.raw)
-}
-
-const beforeAvatarUpload = (rawFile) => {
-  if (rawFile.type !== 'image/jpeg') {
-    ElMessage.error('Avatar picture must be JPG format!')
-    return false
-  } else if (rawFile.size / 1024 / 1024 > 2) {
-    ElMessage.error('Avatar picture size can not exceed 2MB!')
-    return false
-  }
-  return true
-}
 </script>
 
-<style lang="scss">
-.el-table .el-table__cell {
-  z-index: auto;
-}
-.avatar-uploader .avatar {
-  width: 178px;
-  height: 178px;
-  display: block;
-}
-.avatar-uploader .el-upload {
-  border: 1px dashed #d9d9d9;
-  border-radius: 6px;
-  cursor: pointer;
-  position: relative;
-  overflow: hidden;
-  transition: var(--el-transition-duration-fast);
-}
-
-.avatar-uploader .el-upload:hover {
-  border-color: var(--el-color-primary);
-}
-
-.el-icon.avatar-uploader-icon {
-  font-size: 28px;
-  color: #8c939d;
-  width: 178px;
-  height: 178px;
-  text-align: center;
-}
+<style>
 </style>
