@@ -2,20 +2,19 @@ package autocode
 
 import (
 	"github.com/flipped-aurora/gin-vue-admin/server/global"
-    "github.com/flipped-aurora/gin-vue-admin/server/model/autocode"
-    "github.com/flipped-aurora/gin-vue-admin/server/model/common/request"
-    autocodeReq "github.com/flipped-aurora/gin-vue-admin/server/model/autocode/request"
-    "github.com/flipped-aurora/gin-vue-admin/server/model/common/response"
-    "github.com/flipped-aurora/gin-vue-admin/server/service"
-    "github.com/gin-gonic/gin"
-    "go.uber.org/zap"
+	"github.com/flipped-aurora/gin-vue-admin/server/model/autocode"
+	autocodeReq "github.com/flipped-aurora/gin-vue-admin/server/model/autocode/request"
+	"github.com/flipped-aurora/gin-vue-admin/server/model/common/request"
+	"github.com/flipped-aurora/gin-vue-admin/server/model/common/response"
+	"github.com/flipped-aurora/gin-vue-admin/server/service"
+	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 )
 
 type CompetitionScheApi struct {
 }
 
 var competitionScheService = service.ServiceGroupApp.AutoCodeServiceGroup.CompetitionScheService
-
 
 // CreateCompetitionSche 创建CompetitionSche
 // @Tags CompetitionSche
@@ -30,7 +29,7 @@ func (competitionScheApi *CompetitionScheApi) CreateCompetitionSche(c *gin.Conte
 	var competitionSche autocode.CompetitionSche
 	_ = c.ShouldBindJSON(&competitionSche)
 	if err := competitionScheService.CreateCompetitionSche(competitionSche); err != nil {
-        global.GVA_LOG.Error("创建失败!", zap.Error(err))
+		global.GVA_LOG.Error("创建失败!", zap.Error(err))
 		response.FailWithMessage("创建失败", c)
 	} else {
 		response.OkWithMessage("创建成功", c)
@@ -50,7 +49,7 @@ func (competitionScheApi *CompetitionScheApi) DeleteCompetitionSche(c *gin.Conte
 	var competitionSche autocode.CompetitionSche
 	_ = c.ShouldBindJSON(&competitionSche)
 	if err := competitionScheService.DeleteCompetitionSche(competitionSche); err != nil {
-        global.GVA_LOG.Error("删除失败!", zap.Error(err))
+		global.GVA_LOG.Error("删除失败!", zap.Error(err))
 		response.FailWithMessage("删除失败", c)
 	} else {
 		response.OkWithMessage("删除成功", c)
@@ -68,9 +67,9 @@ func (competitionScheApi *CompetitionScheApi) DeleteCompetitionSche(c *gin.Conte
 // @Router /competitionSche/deleteCompetitionScheByIds [delete]
 func (competitionScheApi *CompetitionScheApi) DeleteCompetitionScheByIds(c *gin.Context) {
 	var IDS request.IdsReq
-    _ = c.ShouldBindJSON(&IDS)
+	_ = c.ShouldBindJSON(&IDS)
 	if err := competitionScheService.DeleteCompetitionScheByIds(IDS); err != nil {
-        global.GVA_LOG.Error("批量删除失败!", zap.Error(err))
+		global.GVA_LOG.Error("批量删除失败!", zap.Error(err))
 		response.FailWithMessage("批量删除失败", c)
 	} else {
 		response.OkWithMessage("批量删除成功", c)
@@ -90,7 +89,7 @@ func (competitionScheApi *CompetitionScheApi) UpdateCompetitionSche(c *gin.Conte
 	var competitionSche autocode.CompetitionSche
 	_ = c.ShouldBindJSON(&competitionSche)
 	if err := competitionScheService.UpdateCompetitionSche(competitionSche); err != nil {
-        global.GVA_LOG.Error("更新失败!", zap.Error(err))
+		global.GVA_LOG.Error("更新失败!", zap.Error(err))
 		response.FailWithMessage("更新失败", c)
 	} else {
 		response.OkWithMessage("更新成功", c)
@@ -110,7 +109,7 @@ func (competitionScheApi *CompetitionScheApi) FindCompetitionSche(c *gin.Context
 	var competitionSche autocode.CompetitionSche
 	_ = c.ShouldBindQuery(&competitionSche)
 	if err, recompetitionSche := competitionScheService.GetCompetitionSche(competitionSche.ID); err != nil {
-        global.GVA_LOG.Error("查询失败!", zap.Error(err))
+		global.GVA_LOG.Error("查询失败!", zap.Error(err))
 		response.FailWithMessage("查询失败", c)
 	} else {
 		response.OkWithData(gin.H{"recompetitionSche": recompetitionSche}, c)
@@ -130,14 +129,34 @@ func (competitionScheApi *CompetitionScheApi) GetCompetitionScheList(c *gin.Cont
 	var pageInfo autocodeReq.CompetitionScheSearch
 	_ = c.ShouldBindQuery(&pageInfo)
 	if err, list, total := competitionScheService.GetCompetitionScheInfoList(pageInfo); err != nil {
-	    global.GVA_LOG.Error("获取失败!", zap.Error(err))
-        response.FailWithMessage("获取失败", c)
-    } else {
-        response.OkWithDetailed(response.PageResult{
-            List:     list,
-            Total:    total,
-            Page:     pageInfo.Page,
-            PageSize: pageInfo.PageSize,
-        }, "获取成功", c)
-    }
+		global.GVA_LOG.Error("获取失败!", zap.Error(err))
+		response.FailWithMessage("获取失败", c)
+	} else {
+		response.OkWithDetailed(response.PageResult{
+			List:     list,
+			Total:    total,
+			Page:     pageInfo.Page,
+			PageSize: pageInfo.PageSize,
+		}, "获取成功", c)
+	}
+}
+
+func (competitionScheApi *CompetitionScheApi) GetCompetitionScheDetailList(c *gin.Context) {
+	var pageInfo autocodeReq.CompetitionDetailSearch
+	err := c.ShouldBind(&pageInfo)
+	if err != nil {
+		response.ValidatorError(err, c)
+		return
+	}
+	if err, list, total := competitionScheService.GetCompetitionScheDetailList(pageInfo); err != nil {
+		global.GVA_LOG.Error("获取失败!", zap.Error(err))
+		response.FailWithMessage("获取失败", c)
+	} else {
+		response.OkWithDetailed(response.PageResult{
+			List:     list,
+			Total:    total,
+			Page:     pageInfo.Page,
+			PageSize: pageInfo.PageSize,
+		}, "获取成功", c)
+	}
 }

@@ -24,7 +24,11 @@ func (s *NoAuthRouter) InitNoAuthRouter(Router *gin.RouterGroup) {
 		{
 			NoAuthSwiper.GET("getSwiperList", swiperApi.GetSwiperList) // 获取Swiper列表
 		}
-
+		var competitionScheApi = v1.ApiGroupApp.AutoCodeApiGroup.CompetitionScheApi
+		NoAuthcompetitionSche := NoAuthRouterWithoutRecord.Group("sche")
+		{
+			NoAuthcompetitionSche.GET("getList", competitionScheApi.GetCompetitionScheDetailList) // 获取Swiper列表
+		}
 	}
 
 }

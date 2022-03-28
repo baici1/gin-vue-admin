@@ -60,11 +60,48 @@ func (competitionScheService *CompetitionScheService) GetCompetitionScheInfoList
 	if info.Version != nil {
 		db = db.Where("version = ?", info.Version)
 	}
-	db = db.Where("c_id=?", info.CId)
+	if info.CId != nil {
+		db = db.Where("c_id=?", info.CId)
+	}
 	err = db.Count(&total).Error
 	if err != nil {
 		return
 	}
 	err = db.Limit(limit).Offset(offset).Find(&competitionSches).Error
+	return err, competitionSches, total
+}
+
+func (competitionScheService *CompetitionScheService) GetCompetitionScheDetailList(info autoCodeReq.CompetitionDetailSearch) (err error, list interface{}, total int64) {
+	limit := info.PageSize
+	offset := info.PageSize * (info.Page - 1)
+	// 创建db
+	db := global.GVA_DB.Model(&autocode.CompetitionSche{})
+	var competitionSches []autocode.CompetitionSche
+	//可加条件
+	//报名未开始
+	if info.Status == 1 {
+		db = db.Where("competition_sche.start_time > now() ")
+	}
+	//报名种
+	if info.Status == 2 {
+		db = db.Where("competition_sche.start_time < now() and competition_sche.end_time > now() ")
+	}
+	//准备种
+	if info.Status == 3 {
+		db = db.Where("competition_sche.end_time < now() and now() < competition_sche.r_start_time   ")
+	}
+	//比赛进行种
+	if info.Status == 4 {
+		db = db.Where("competition_sche.r_start_time < now() and now() < competition_sche.r_end_time ")
+	}
+	//比赛结束
+	if info.Status == 5 {
+		db = db.Where("competition_sche.r_end_time < now() ")
+	}
+	err = db.Count(&total).Error
+	if err != nil {
+		return
+	}
+	err = db.Limit(limit).Offset(offset).Preload("BaseInfo", "c_name like ?", "%"+info.SearchInfo+"%").Find(&competitionSches).Error
 	return err, competitionSches, total
 }
