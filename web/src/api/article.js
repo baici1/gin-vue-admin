@@ -12,7 +12,7 @@ export const createArticle = (data) => {
   return service({
     url: '/article/createArticle',
     method: 'post',
-    data
+    data,
   })
 }
 
@@ -28,7 +28,7 @@ export const deleteArticle = (data) => {
   return service({
     url: '/article/deleteArticle',
     method: 'delete',
-    data
+    data,
   })
 }
 
@@ -44,7 +44,7 @@ export const deleteArticleByIds = (data) => {
   return service({
     url: '/article/deleteArticleByIds',
     method: 'delete',
-    data
+    data,
   })
 }
 
@@ -60,7 +60,7 @@ export const updateArticle = (data) => {
   return service({
     url: '/article/updateArticle',
     method: 'put',
-    data
+    data,
   })
 }
 
@@ -76,7 +76,7 @@ export const findArticle = (params) => {
   return service({
     url: '/article/findArticle',
     method: 'get',
-    params
+    params,
   })
 }
 
@@ -92,6 +92,14 @@ export const getArticleList = (params) => {
   return service({
     url: '/article/getArticleList',
     method: 'get',
-    params
+    params,
+  })
+}
+// 上传文件（图片，附件等）
+export const uploadFile = (data) => {
+  return service({
+    url: '/fileUploadAndDownload/upload',
+    method: 'post',
+    data,
   })
 }

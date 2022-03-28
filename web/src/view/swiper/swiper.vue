@@ -121,7 +121,7 @@
           <!-- <el-input v-model="formData.swiperPicture" clearable placeholder="请输入" /> -->
           <el-upload
             class="avatar-uploader"
-            action="http://127.0.0.1:8888/fileUploadAndDownload/upload"
+            :action="`${path}/fileUploadAndDownload/upload`"
             :show-file-list="false"
             :on-success="handleAvatarSuccess"
             :before-upload="beforeAvatarUpload"
@@ -383,7 +383,7 @@ const enterDialog = async () => {
 }
 
 // ============== 自定义部分开始 ===============
-
+const path = ref(import.meta.env.VITE_BASE_API)
 const userStore = useUserStore()
 const token = ref(userStore.token)
 const handleAvatarSuccess = (

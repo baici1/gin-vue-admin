@@ -75,7 +75,7 @@
         <el-table-column align="left" label="发布时间" prop="publishedTime" width="180">
           <template #default="scope">{{ formatDate(scope.row.publishedTime) }}</template>
         </el-table-column>
-        <el-table-column align="left" label="标题" prop="title" width="180" />
+        <el-table-column align="left" label="标题" class="truncate" prop="title" width="180" />
         <!-- <el-table-column align="left" label="引用" prop="description" width="120" /> -->
         <!-- <el-table-column
           align="left"
@@ -198,7 +198,7 @@
       </template>
     </el-dialog>
     <el-drawer v-model="drawer" :title="formData.title" direction="rtl">
-      <v-html>{{ formData.content }}</v-html>
+      <div v-html="`${formData.content}`" />
     </el-drawer>
   </div>
 </template>

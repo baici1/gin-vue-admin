@@ -64,6 +64,9 @@ func (articleService *ArticleService) GetArticleInfoList(info autoCodeReq.Articl
 	if info.Type != nil {
 		db = db.Where("type = ?", info.Type)
 	}
+	if info.Published != nil {
+		db = db.Where("published = ?", info.Published)
+	}
 	err = db.Count(&total).Error
 	if err != nil {
 		return
