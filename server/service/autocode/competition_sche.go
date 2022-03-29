@@ -77,6 +77,7 @@ func (competitionScheService *CompetitionScheService) GetCompetitionScheDetailLi
 	// 创建db
 	db := global.GVA_DB.Model(&autocode.CompetitionSche{})
 	var competitionSches []autocode.CompetitionSche
+	db = db.Joins("left join competition_info on competition_sche.c_id=competition_info.id")
 	//可加条件
 	//报名未开始
 	if info.Status == 1 {
@@ -98,10 +99,11 @@ func (competitionScheService *CompetitionScheService) GetCompetitionScheDetailLi
 	if info.Status == 5 {
 		db = db.Where("competition_sche.r_end_time < now() ")
 	}
+	db = db.Where("competition_info.c_name like ?", "%"+info.SearchInfo+"%")
+	err = db.Limit(limit).Offset(offset).Preload("BaseInfo", "c_name like ?", "%"+info.SearchInfo+"%").Find(&competitionSches).Error
 	err = db.Count(&total).Error
 	if err != nil {
 		return
 	}
-	err = db.Limit(limit).Offset(offset).Preload("BaseInfo", "c_name like ?", "%"+info.SearchInfo+"%").Find(&competitionSches).Error
 	return err, competitionSches, total
 }

@@ -17,7 +17,7 @@ type CompetitionSche struct {
 	EndTime    time.Time       `json:"endTime" form:"endTime" gorm:"column:end_time;comment:报名截止日期;"`
 	RStartTime time.Time       `json:"rStartTime" form:"rStartTime" gorm:"column:r_start_time;comment:比赛开始时间;"`
 	REndTime   time.Time       `json:"rEndTime" form:"rEndTime" gorm:"column:r_end_time;comment:比赛结束时间;"`
-	BaseInfo   CompetitionInfo `json:"base_info" gorm:"foreignKey:CId;references:ID"`
+	BaseInfo   CompetitionInfo `json:"base_info" gorm:"foreignKey:ID;references:CId"`
 }
 
 // TableName CompetitionSche 表名

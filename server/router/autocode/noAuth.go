@@ -28,6 +28,20 @@ func (s *NoAuthRouter) InitNoAuthRouter(Router *gin.RouterGroup) {
 		NoAuthcompetitionSche := NoAuthRouterWithoutRecord.Group("sche")
 		{
 			NoAuthcompetitionSche.GET("getList", competitionScheApi.GetCompetitionScheDetailList) // 获取Swiper列表
+
+		}
+		var competitionInfoApi = v1.ApiGroupApp.AutoCodeApiGroup.CompetitionInfoApi
+		NoAuthcompetitionInfo := NoAuthRouterWithoutRecord.Group("info")
+		{
+			NoAuthcompetitionInfo.GET("tree_list", competitionInfoApi.GetComSelectList)
+		}
+		var entryFormApi = v1.ApiGroupApp.AutoCodeApiGroup.EntryFormApi
+		NoAuthentryForm := NoAuthRouterWithoutRecord.Group("entry")
+		{
+			NoAuthentryForm.GET("all", entryFormApi.GetAllEntryFormDetailInfo)
+			NoAuthentryForm.GET("first", entryFormApi.GetEntryFormDetailInfo)
+			NoAuthentryForm.POST("create", entryFormApi.CreateEntryFormByUser)
+			NoAuthentryForm.POST("update", entryFormApi.UpdateEntryFormByUser)
 		}
 	}
 
