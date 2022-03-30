@@ -10,7 +10,7 @@ import (
 type TeamMember struct {
 	global.GVA_MODEL
 	TeamId   int  `json:"teamId" form:"teamId" gorm:"column:team_id;comment:团队编号;size:10;"`
-	UId      *int `json:"uId" form:"uId" gorm:"column:u_id;comment:用户编号;size:10;"`
+	UId      int  `json:"uId" form:"uId" gorm:"column:u_id;comment:用户编号;size:10;"`
 	Identify *int `json:"identify" form:"identify" gorm:"column:identify;comment:身份;size:10;"`
 }
 

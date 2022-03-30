@@ -43,6 +43,31 @@ func (s *NoAuthRouter) InitNoAuthRouter(Router *gin.RouterGroup) {
 			NoAuthentryForm.POST("create", entryFormApi.CreateEntryFormByUser)
 			NoAuthentryForm.POST("update", entryFormApi.UpdateEntryFormByUser)
 		}
+		var teamMemberApi = v1.ApiGroupApp.AutoCodeApiGroup.TeamMemberApi
+		NoAuthteamMember := NoAuthRouterWithoutRecord.Group("member")
+		{
+			NoAuthteamMember.GET("list", teamMemberApi.GetTeamMemberList)
+			NoAuthteamMember.POST("create", teamMemberApi.CreateOwnTeamMember)
+			NoAuthteamMember.PUT("update", teamMemberApi.UpdateTeamMember)    // 更新TeamMember
+			NoAuthteamMember.DELETE("delete", teamMemberApi.DeleteTeamMember) // 批量删除TeamMember
+		}
+		var companyInfoApi = v1.ApiGroupApp.AutoCodeApiGroup.CompanyInfoApi
+		NoAuthcompanyInfo := NoAuthRouterWithoutRecord.Group("company")
+		{
+			NoAuthcompanyInfo.POST("create", companyInfoApi.CreateCompanyInfo)   // 新建CompanyInfo
+			NoAuthcompanyInfo.DELETE("delete", companyInfoApi.DeleteCompanyInfo) // 删除CompanyInfo
+			NoAuthcompanyInfo.PUT("update", companyInfoApi.UpdateCompanyInfo)    // 更新CompanyInfo
+			NoAuthcompanyInfo.GET("find", teamMemberApi.FindTeamMember)          // 根据ID获取TeamMember
+		}
+		var teamInfoApi = v1.ApiGroupApp.AutoCodeApiGroup.TeamInfoApi
+		NoAuthteamInfo := NoAuthRouterWithoutRecord.Group("team")
+		{
+			NoAuthteamInfo.POST("createTeamInfo", teamInfoApi.CreateTeamInfo)   // 新建TeamInfo
+			NoAuthteamInfo.DELETE("deleteTeamInfo", teamInfoApi.DeleteTeamInfo) // 删除TeamInfo
+			NoAuthteamInfo.PUT("updateTeamInfo", teamInfoApi.UpdateTeamInfo)    // 更新TeamInfo
+			NoAuthteamInfo.GET("findTeamInfo", teamInfoApi.FindTeamInfo)        // 根据ID获取TeamInfo
+		}
+
 	}
 
 }
