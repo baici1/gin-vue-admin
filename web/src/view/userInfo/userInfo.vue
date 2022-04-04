@@ -354,7 +354,7 @@ const enterDialog = async () => {
 }
 // ============== 自定义部分结束 ===============
 const goUserDetail = (param) => {
-  if (param.identity === 0) {
+  if (param.identity === 2023) {
     router.push({ name: 'teacherInfo', query: { id: param.ID } })
   } else {
     router.push({ name: 'studentInfo', query: { id: param.ID } })

@@ -143,7 +143,7 @@ func (entryFormService *EntryFormService) UpdateEntryFormByUser(param autoCodeRe
 			}
 		}
 	} else {
-		err = tx.Model(&autocode.ProjectInfo{}).Save(param.Project).Error
+		err = tx.Save(param.Project).Error
 		if err != nil {
 			tx.Rollback()
 			return err

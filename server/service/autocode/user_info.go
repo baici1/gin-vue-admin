@@ -2,6 +2,7 @@ package autocode
 
 import (
 	"errors"
+	"fmt"
 	"github.com/flipped-aurora/gin-vue-admin/server/global"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/autocode"
 	autoCodeReq "github.com/flipped-aurora/gin-vue-admin/server/model/autocode/request"
@@ -111,18 +112,46 @@ func (userInfoService *UserInfoService) GetUserInfoInfoList(info autoCodeReq.Use
  * @return err
  */
 func (userInfoService *UserInfoService) CreateUserByRegister(userInfo autocode.UserInfo) (err error) {
+	tx := global.GVA_DB.Begin()
 	var user autocode.UserInfo
 	//重复注册
-	if !errors.Is(global.GVA_DB.Where("phone=?", userInfo.Phone).First(&user).Error, gorm.ErrRecordNotFound) {
+	if !errors.Is(tx.Where("phone=?", userInfo.Phone).First(&user).Error, gorm.ErrRecordNotFound) {
 		return errors.New("用户已注册")
 	}
 	//密码加密
 	userInfo.Password = utils.MD5V([]byte(userInfo.Password))
 	//判断身份:如果是学生选择直接审核通过
-	if userInfo.Identity == 1 {
+	if userInfo.Identity == 2019 {
 		userInfo.Check = 1
 	}
 	err = global.GVA_DB.Create(&userInfo).Error
+	if err != nil {
+		tx.Rollback()
+		return
+	}
+	//需要根据身份去创建一个基本的用户信息（老师与学生）
+	if userInfo.Identity == 2019 {
+		stu := autocode.StudentInfo{
+			UId:      int(userInfo.ID),
+			Nickname: userInfo.Phone,
+			Avatar:   `http://project.yangdiy.cn/16483710248249a5f4881211ebb6edd017c2d2eca2.jpg`,
+			RealName: userInfo.Phone,
+		}
+		err = global.GVA_DB.Create(&stu).Error
+	} else {
+		tea := autocode.TeacherInfo{
+			UId:      int(userInfo.ID),
+			Nickname: userInfo.Phone,
+			Avatar:   `http://project.yangdiy.cn/16483710248249a5f4881211ebb6edd017c2d2eca2.jpg`,
+			RealName: userInfo.Phone,
+		}
+		err = global.GVA_DB.Create(&tea).Error
+	}
+	if err != nil {
+		tx.Rollback()
+		return
+	}
+	tx.Commit()
 	return
 }
 
@@ -131,6 +160,9 @@ func (userInfoService *UserInfoService) UserToLogin(u autocode.UserInfo) (err er
 	//密码加密进行比较
 	u.Password = utils.MD5V([]byte(u.Password))
 	err = global.GVA_DB.Where("phone=? and password=?", u.Phone, u.Password).Preload("Authority").First(&user).Error
+	if user.Check != 1 {
+		return errors.New("当前用户需要审核！请等待审核！"), nil
+	}
 	//如果可以找到
 	if err == nil {
 		var am system.SysMenu
@@ -140,4 +172,10 @@ func (userInfoService *UserInfoService) UserToLogin(u autocode.UserInfo) (err er
 		}
 	}
 	return err, &user
+}
+
+func (userInfoService *UserInfoService) GetInfoByPhone(pre string) (err error, data autocode.UserInfo) {
+	fmt.Println(pre)
+	err = global.GVA_DB.Where("phone = ? ", pre).First(&data).Error
+	return err, data
 }

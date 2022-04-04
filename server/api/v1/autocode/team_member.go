@@ -154,3 +154,19 @@ func (teamMemberApi *TeamMemberApi) CreateOwnTeamMember(c *gin.Context) {
 		response.OkWithMessage("增加成功", c)
 	}
 }
+
+func (teamMemberApi *TeamMemberApi) GetTeamIDByUser(c *gin.Context) {
+	var param = struct {
+		Uid int `json:"uid" form:"uid"`
+	}{}
+	if err := c.ShouldBind(&param); err != nil {
+		response.ValidatorError(err, c)
+		return
+	}
+	if err, teamid := teamMemberService.GetTeamIDByUser(param.Uid); err != nil {
+		global.GVA_LOG.Error("获取失败!", zap.Error(err))
+		response.FailWithMessage(err.Error(), c)
+	} else {
+		response.OkWithData(teamid, c)
+	}
+}

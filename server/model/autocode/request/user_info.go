@@ -15,6 +15,8 @@ type UserRegister struct {
 	AgainPassword string `json:"againPassword" form:"againPassword" binding:"required,eqfield=Password"`
 	Phone         string `json:"phone" form:"phone" gorm:"column:phone;comment:手机号;" binding:"required"`
 	Identity      int    `json:"identity" form:"identity" gorm:"column:identity;comment:身份 0是老师 1是学生;size:10;"`
+	Captcha       string `json:"captcha" form:"captcha" binding:"required"`     // 验证码
+	CaptchaId     string `json:"captchaId" form:"captchaId" binding:"required"` // 验证码ID
 }
 
 type UserLogin struct {

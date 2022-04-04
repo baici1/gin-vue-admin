@@ -88,3 +88,9 @@ func (teamMemberService *TeamMemberService) CreateOwnTeamMember(member autoCodeR
 	//创建团队成员
 	return global.GVA_DB.Create(&param).Error
 }
+
+func (teamMemberService *TeamMemberService) GetTeamIDByUser(uid int) (error, int) {
+	teamid := 0
+	err := global.GVA_DB.Model(&autocode.TeamMember{}).Where("u_id=?", uid).Select("team_id").Find(&teamid).Error
+	return err, teamid
+}

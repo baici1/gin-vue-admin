@@ -157,16 +157,22 @@ func (userInfoApi *UserInfoApi) CreateUserByRegister(c *gin.Context) {
 		response.ValidatorError(err, c)
 		return
 	}
-	if err = userInfoService.CreateUserByRegister(autocode.UserInfo{
-		Password: param.Password,
-		Phone:    param.Phone,
-		Identity: param.Identity,
-	}); err != nil {
-		global.GVA_LOG.Error(param.Phone+"注册失败！", zap.Error(err))
-		response.FailWithMessage("注册失败！", c)
+	//校验码验证：现阶段先不放
+	if store.Verify(param.CaptchaId, param.Captcha, true) {
+		if err = userInfoService.CreateUserByRegister(autocode.UserInfo{
+			Password: param.Password,
+			Phone:    param.Phone,
+			Identity: param.Identity,
+		}); err != nil {
+			global.GVA_LOG.Error(param.Phone+"注册失败！", zap.Error(err))
+			response.FailWithMessage("注册失败！", c)
+		} else {
+			response.OkWithMessage("注册成功", c)
+		}
 	} else {
-		response.OkWithMessage("注册成功", c)
+		response.FailWithMessage("验证码错误", c)
 	}
+
 }
 
 func (userInfoApi *UserInfoApi) UserToLogin(c *gin.Context) {
@@ -183,7 +189,7 @@ func (userInfoApi *UserInfoApi) UserToLogin(c *gin.Context) {
 			Password: param.Password,
 			Phone:    param.Phone,
 		}); err != nil {
-			global.GVA_LOG.Error("登陆失败! 用户名不存在或者密码错误!", zap.Error(err))
+			global.GVA_LOG.Error("登陆失败!", zap.Error(err))
 			response.FailWithMessage("用户名不存在或者密码错误", c)
 		} else {
 			//签发token
@@ -247,5 +253,22 @@ func (userInfoApi *UserInfoApi) tokenNext(c *gin.Context, user autocode.UserInfo
 			Token:     token,
 			ExpiresAt: claims.StandardClaims.ExpiresAt * 1000,
 		}, "登录成功", c)
+	}
+}
+
+func (userInfoApi *UserInfoApi) GetInfoByPhone(c *gin.Context) {
+	var param = struct {
+		Phone string `json:"phone" form:"phone" `
+	}{}
+	if err := c.ShouldBind(&param); err != nil {
+		response.ValidatorError(err, c)
+		return
+	} else {
+		if err, list := userInfoService.GetInfoByPhone(param.Phone); err != nil {
+			global.GVA_LOG.Error("获取失败!", zap.Error(err))
+			response.FailWithMessage("获取失败", c)
+		} else {
+			response.OkWithData(list, c)
+		}
 	}
 }
