@@ -12,7 +12,7 @@ export const createStudentInfo = (data) => {
   return service({
     url: '/studentInfo/createStudentInfo',
     method: 'post',
-    data
+    data,
   })
 }
 
@@ -28,23 +28,7 @@ export const deleteStudentInfo = (data) => {
   return service({
     url: '/studentInfo/deleteStudentInfo',
     method: 'delete',
-    data
-  })
-}
-
-// @Tags StudentInfo
-// @Summary 删除StudentInfo
-// @Security ApiKeyAuth
-// @accept application/json
-// @Produce application/json
-// @Param data body request.IdsReq true "批量删除StudentInfo"
-// @Success 200 {string} string "{"success":true,"data":{},"msg":"删除成功"}"
-// @Router /studentInfo/deleteStudentInfo [delete]
-export const deleteStudentInfoByIds = (data) => {
-  return service({
-    url: '/studentInfo/deleteStudentInfoByIds',
-    method: 'delete',
-    data
+    data,
   })
 }
 
@@ -60,7 +44,7 @@ export const updateStudentInfo = (data) => {
   return service({
     url: '/studentInfo/updateStudentInfo',
     method: 'put',
-    data
+    data,
   })
 }
 
@@ -76,22 +60,6 @@ export const findStudentInfo = (params) => {
   return service({
     url: '/studentInfo/findStudentInfo',
     method: 'get',
-    params
-  })
-}
-
-// @Tags StudentInfo
-// @Summary 分页获取StudentInfo列表
-// @Security ApiKeyAuth
-// @accept application/json
-// @Produce application/json
-// @Param data query request.PageInfo true "分页获取StudentInfo列表"
-// @Success 200 {string} string "{"success":true,"data":{},"msg":"获取成功"}"
-// @Router /studentInfo/getStudentInfoList [get]
-export const getStudentInfoList = (params) => {
-  return service({
-    url: '/studentInfo/getStudentInfoList',
-    method: 'get',
-    params
+    params,
   })
 }

@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"fmt"
 	"github.com/flipped-aurora/gin-vue-admin/server/global"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/common/response"
 	"github.com/flipped-aurora/gin-vue-admin/server/service"
@@ -20,6 +21,7 @@ func CasbinHandler() gin.HandlerFunc {
 		act := c.Request.Method
 		// 获取用户的角色
 		sub := waitUse.AuthorityId
+		fmt.Println(sub)
 		e := casbinService.Casbin()
 		// 判断策略中是否存在
 		success, _ := e.Enforce(sub, obj, act)

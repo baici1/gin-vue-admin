@@ -3,7 +3,6 @@ package autocode
 
 import (
 	"github.com/flipped-aurora/gin-vue-admin/server/global"
-	"github.com/flipped-aurora/gin-vue-admin/server/model/system"
 )
 
 // TeacherInfo 结构体
@@ -13,9 +12,7 @@ type TeacherInfo struct {
 	PersonnelId    string `json:"personnelId" form:"personnelId" gorm:"column:personnel_id;comment:人事编号;size:10;"`
 	OfficeId       string `json:"officeId" form:"officeId" gorm:"column:office_id;comment:教务编号;size:10;"`
 	FinancialId    string `json:"financialId" form:"financialId" gorm:"column:financial_id;comment:财务编号;size:10;"`
-	Phone          string `json:"phone" form:"phone" gorm:"column:phone;comment:手机号;size:255;"`
-	Password       string `json:"password" form:"password" gorm:"column:password;comment:密码;size:255;"`
-	AuthorityId    string `json:"authorityId" form:"authorityId" gorm:"column:authority_id;comment:用户身份;size:191;"`
+	UId            int    `json:"uId" form:"uId" gorm:"column:u_id;comment:用户编号;size:10;"`
 	Nickname       string `json:"nickname" form:"nickname" gorm:"column:nickname;comment:昵称;size:255;"`
 	Email          string `json:"email" form:"email" gorm:"column:email;comment:邮箱;size:255;"`
 	Avatar         string `json:"avatar" form:"avatar" gorm:"column:avatar;comment:头像;size:255;"`
@@ -29,8 +26,6 @@ type TeacherInfo struct {
 	BankName       string `json:"bankName" form:"bankName" gorm:"column:bank_name;comment:银行名称;size:30;"`
 	BankCardNumber string `json:"bankCardNumber" form:"bankCardNumber" gorm:"column:bank_card_number;comment:银行卡号;size:30;"`
 	Introduction   string `json:"introduction" form:"introduction" gorm:"column:introduction;comment:介绍;size:255;"`
-	//用户权限信息
-	Authority system.SysAuthority `json:"authority" gorm:"foreignKey:AuthorityId;references:AuthorityId;comment:用户角色"`
 }
 
 // TableName TeacherInfo 表名

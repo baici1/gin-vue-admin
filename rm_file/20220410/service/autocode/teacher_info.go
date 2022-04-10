@@ -40,8 +40,8 @@ func (teacherInfoService *TeacherInfoService) UpdateTeacherInfo(teacherInfo auto
 
 // GetTeacherInfo 根据id获取TeacherInfo记录
 // Author [piexlmax](https://github.com/piexlmax)
-func (teacherInfoService *TeacherInfoService) GetTeacherInfo(id uint) (err error, teacherInfo autocode.TeacherInfo) {
-	err = global.GVA_DB.Where("id = ?", id).First(&teacherInfo).Error
+func (teacherInfoService *TeacherInfoService) GetTeacherInfo(id int) (err error, teacherInfo autocode.TeacherInfo) {
+	err = global.GVA_DB.Where("u_id = ?", id).First(&teacherInfo).Error
 	return
 }
 
@@ -54,27 +54,6 @@ func (teacherInfoService *TeacherInfoService) GetTeacherInfoInfoList(info autoCo
 	db := global.GVA_DB.Model(&autocode.TeacherInfo{})
 	var teacherInfos []autocode.TeacherInfo
 	// 如果有条件搜索 下方会自动创建搜索语句
-	if info.PersonnelId != "" {
-		db = db.Where("personnel_id = ?", info.PersonnelId)
-	}
-	if info.OfficeId != "" {
-		db = db.Where("office_id = ?", info.OfficeId)
-	}
-	if info.FinancialId != "" {
-		db = db.Where("financial_id = ?", info.FinancialId)
-	}
-	if info.Phone != "" {
-		db = db.Where("phone = ?", info.Phone)
-	}
-	if info.RealName != "" {
-		db = db.Where("real_name LIKE ?", "%"+info.RealName+"%")
-	}
-	if info.Gender != nil {
-		db = db.Where("gender = ?", info.Gender)
-	}
-	if info.Department != "" {
-		db = db.Where("department LIKE ?", "%"+info.Department+"%")
-	}
 	err = db.Count(&total).Error
 	if err != nil {
 		return

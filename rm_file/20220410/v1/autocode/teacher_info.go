@@ -2,20 +2,19 @@ package autocode
 
 import (
 	"github.com/flipped-aurora/gin-vue-admin/server/global"
-    "github.com/flipped-aurora/gin-vue-admin/server/model/autocode"
-    "github.com/flipped-aurora/gin-vue-admin/server/model/common/request"
-    autocodeReq "github.com/flipped-aurora/gin-vue-admin/server/model/autocode/request"
-    "github.com/flipped-aurora/gin-vue-admin/server/model/common/response"
-    "github.com/flipped-aurora/gin-vue-admin/server/service"
-    "github.com/gin-gonic/gin"
-    "go.uber.org/zap"
+	"github.com/flipped-aurora/gin-vue-admin/server/model/autocode"
+	autocodeReq "github.com/flipped-aurora/gin-vue-admin/server/model/autocode/request"
+	"github.com/flipped-aurora/gin-vue-admin/server/model/common/request"
+	"github.com/flipped-aurora/gin-vue-admin/server/model/common/response"
+	"github.com/flipped-aurora/gin-vue-admin/server/service"
+	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 )
 
 type TeacherInfoApi struct {
 }
 
 var teacherInfoService = service.ServiceGroupApp.AutoCodeServiceGroup.TeacherInfoService
-
 
 // CreateTeacherInfo 创建TeacherInfo
 // @Tags TeacherInfo
@@ -30,7 +29,7 @@ func (teacherInfoApi *TeacherInfoApi) CreateTeacherInfo(c *gin.Context) {
 	var teacherInfo autocode.TeacherInfo
 	_ = c.ShouldBindJSON(&teacherInfo)
 	if err := teacherInfoService.CreateTeacherInfo(teacherInfo); err != nil {
-        global.GVA_LOG.Error("创建失败!", zap.Error(err))
+		global.GVA_LOG.Error("创建失败!", zap.Error(err))
 		response.FailWithMessage("创建失败", c)
 	} else {
 		response.OkWithMessage("创建成功", c)
@@ -50,7 +49,7 @@ func (teacherInfoApi *TeacherInfoApi) DeleteTeacherInfo(c *gin.Context) {
 	var teacherInfo autocode.TeacherInfo
 	_ = c.ShouldBindJSON(&teacherInfo)
 	if err := teacherInfoService.DeleteTeacherInfo(teacherInfo); err != nil {
-        global.GVA_LOG.Error("删除失败!", zap.Error(err))
+		global.GVA_LOG.Error("删除失败!", zap.Error(err))
 		response.FailWithMessage("删除失败", c)
 	} else {
 		response.OkWithMessage("删除成功", c)
@@ -68,9 +67,9 @@ func (teacherInfoApi *TeacherInfoApi) DeleteTeacherInfo(c *gin.Context) {
 // @Router /teacherInfo/deleteTeacherInfoByIds [delete]
 func (teacherInfoApi *TeacherInfoApi) DeleteTeacherInfoByIds(c *gin.Context) {
 	var IDS request.IdsReq
-    _ = c.ShouldBindJSON(&IDS)
+	_ = c.ShouldBindJSON(&IDS)
 	if err := teacherInfoService.DeleteTeacherInfoByIds(IDS); err != nil {
-        global.GVA_LOG.Error("批量删除失败!", zap.Error(err))
+		global.GVA_LOG.Error("批量删除失败!", zap.Error(err))
 		response.FailWithMessage("批量删除失败", c)
 	} else {
 		response.OkWithMessage("批量删除成功", c)
@@ -90,7 +89,7 @@ func (teacherInfoApi *TeacherInfoApi) UpdateTeacherInfo(c *gin.Context) {
 	var teacherInfo autocode.TeacherInfo
 	_ = c.ShouldBindJSON(&teacherInfo)
 	if err := teacherInfoService.UpdateTeacherInfo(teacherInfo); err != nil {
-        global.GVA_LOG.Error("更新失败!", zap.Error(err))
+		global.GVA_LOG.Error("更新失败!", zap.Error(err))
 		response.FailWithMessage("更新失败", c)
 	} else {
 		response.OkWithMessage("更新成功", c)
@@ -109,8 +108,8 @@ func (teacherInfoApi *TeacherInfoApi) UpdateTeacherInfo(c *gin.Context) {
 func (teacherInfoApi *TeacherInfoApi) FindTeacherInfo(c *gin.Context) {
 	var teacherInfo autocode.TeacherInfo
 	_ = c.ShouldBindQuery(&teacherInfo)
-	if err, reteacherInfo := teacherInfoService.GetTeacherInfo(teacherInfo.ID); err != nil {
-        global.GVA_LOG.Error("查询失败!", zap.Error(err))
+	if err, reteacherInfo := teacherInfoService.GetTeacherInfo(teacherInfo.UId); err != nil {
+		global.GVA_LOG.Error("查询失败!", zap.Error(err))
 		response.FailWithMessage("查询失败", c)
 	} else {
 		response.OkWithData(gin.H{"reteacherInfo": reteacherInfo}, c)
@@ -130,14 +129,14 @@ func (teacherInfoApi *TeacherInfoApi) GetTeacherInfoList(c *gin.Context) {
 	var pageInfo autocodeReq.TeacherInfoSearch
 	_ = c.ShouldBindQuery(&pageInfo)
 	if err, list, total := teacherInfoService.GetTeacherInfoInfoList(pageInfo); err != nil {
-	    global.GVA_LOG.Error("获取失败!", zap.Error(err))
-        response.FailWithMessage("获取失败", c)
-    } else {
-        response.OkWithDetailed(response.PageResult{
-            List:     list,
-            Total:    total,
-            Page:     pageInfo.Page,
-            PageSize: pageInfo.PageSize,
-        }, "获取成功", c)
-    }
+		global.GVA_LOG.Error("获取失败!", zap.Error(err))
+		response.FailWithMessage("获取失败", c)
+	} else {
+		response.OkWithDetailed(response.PageResult{
+			List:     list,
+			Total:    total,
+			Page:     pageInfo.Page,
+			PageSize: pageInfo.PageSize,
+		}, "获取成功", c)
+	}
 }

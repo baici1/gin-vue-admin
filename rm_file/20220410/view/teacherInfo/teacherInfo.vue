@@ -2,27 +2,6 @@
   <div>
     <div class="gva-search-box">
       <el-form :inline="true" :model="searchInfo" class="demo-form-inline">
-        <el-form-item label="人事编号">
-          <el-input v-model="searchInfo.personnelId" placeholder="搜索条件" />
-        </el-form-item>
-        <el-form-item label="教务编号">
-          <el-input v-model="searchInfo.officeId" placeholder="搜索条件" />
-        </el-form-item>
-        <el-form-item label="财务编号">
-          <el-input v-model="searchInfo.financialId" placeholder="搜索条件" />
-        </el-form-item>
-        <el-form-item label="手机号">
-          <el-input v-model="searchInfo.phone" placeholder="搜索条件" />
-        </el-form-item>
-        <el-form-item label="姓名">
-          <el-input v-model="searchInfo.realName" placeholder="搜索条件" />
-        </el-form-item>
-        <el-form-item label="性别">
-          <el-input v-model="searchInfo.gender" placeholder="搜索条件" />
-        </el-form-item>
-        <el-form-item label="学院">
-          <el-input v-model="searchInfo.department" placeholder="搜索条件" />
-        </el-form-item>
         <el-form-item>
           <el-button size="small" type="primary" icon="search" @click="onSubmit">查询</el-button>
           <el-button size="small" icon="refresh" @click="onReset">重置</el-button>
@@ -64,16 +43,10 @@
         <el-table-column align="left" label="人事编号" prop="personnelId" width="120" />
         <el-table-column align="left" label="教务编号" prop="officeId" width="120" />
         <el-table-column align="left" label="财务编号" prop="financialId" width="120" />
-        <el-table-column align="left" label="手机号" prop="phone" width="120" />
-        <el-table-column align="left" label="密码" prop="password" width="120" />
-        <el-table-column align="left" label="用户身份" prop="authorityId" width="120" />
+        <el-table-column align="left" label="用户编号" prop="uId" width="120" />
         <el-table-column align="left" label="昵称" prop="nickname" width="120" />
         <el-table-column align="left" label="邮箱" prop="email" width="120" />
-        <el-table-column align="left" label="头像" prop="avatar" width="120">
-          <template #default="scope">
-            <el-image :src="scope.row.avatar" style="width: 50px; height: 50px;" />
-          </template>
-        </el-table-column>
+        <el-table-column align="left" label="头像" prop="avatar" width="120" />
         <el-table-column align="left" label="姓名" prop="realName" width="120" />
         <el-table-column align="left" label="性别" prop="gender" width="120">
           <template #default="scope">{{ filterDict(scope.row.gender, genderOptions) }}</template>
@@ -85,14 +58,8 @@
         <el-table-column align="left" label="学历" prop="degree" width="120" />
         <el-table-column align="left" label="银行名称" prop="bankName" width="120" />
         <el-table-column align="left" label="银行卡号" prop="bankCardNumber" width="120" />
-        <el-table-column
-          align="left"
-          label="介绍"
-          prop="introduction"
-          show-overflow-tooltip
-          width="120"
-        />
-        <el-table-column align="left" label="按钮组" width="120" fixed>
+        <el-table-column align="left" label="介绍" prop="introduction" width="120" />
+        <el-table-column align="left" label="按钮组">
           <template #default="scope">
             <el-button
               type="text"
@@ -128,14 +95,8 @@
         <el-form-item label="财务编号:">
           <el-input v-model="formData.financialId" clearable placeholder="请输入" />
         </el-form-item>
-        <el-form-item label="手机号:">
-          <el-input v-model="formData.phone" clearable placeholder="请输入" />
-        </el-form-item>
-        <el-form-item label="密码:">
-          <el-input v-model="formData.password" clearable placeholder="请输入" />
-        </el-form-item>
-        <el-form-item label="用户身份:">
-          <el-input v-model="formData.authorityId" clearable placeholder="请输入" />
+        <el-form-item label="用户编号:">
+          <el-input v-model.number="formData.uId" clearable placeholder="请输入" />
         </el-form-item>
         <el-form-item label="昵称:">
           <el-input v-model="formData.nickname" clearable placeholder="请输入" />
@@ -221,9 +182,7 @@ const formData = ref({
   personnelId: '',
   officeId: '',
   financialId: '',
-  phone: '',
-  password: '',
-  authorityId: '',
+  uId: 0,
   nickname: '',
   email: '',
   avatar: '',
@@ -386,9 +345,7 @@ const closeDialog = () => {
     personnelId: '',
     officeId: '',
     financialId: '',
-    phone: '',
-    password: '',
-    authorityId: '',
+    uId: 0,
     nickname: '',
     email: '',
     avatar: '',

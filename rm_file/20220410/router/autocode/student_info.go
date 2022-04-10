@@ -17,11 +17,9 @@ func (s *StudentInfoRouter) InitStudentInfoRouter(Router *gin.RouterGroup) {
 	{
 		studentInfoRouter.POST("createStudentInfo", studentInfoApi.CreateStudentInfo)   // 新建StudentInfo
 		studentInfoRouter.DELETE("deleteStudentInfo", studentInfoApi.DeleteStudentInfo) // 删除StudentInfo
-		studentInfoRouter.DELETE("deleteStudentInfoByIds", studentInfoApi.DeleteStudentInfoByIds) // 批量删除StudentInfo
 		studentInfoRouter.PUT("updateStudentInfo", studentInfoApi.UpdateStudentInfo)    // 更新StudentInfo
 	}
 	{
-		studentInfoRouterWithoutRecord.GET("findStudentInfo", studentInfoApi.FindStudentInfo)        // 根据ID获取StudentInfo
-		studentInfoRouterWithoutRecord.GET("getStudentInfoList", studentInfoApi.GetStudentInfoList)  // 获取StudentInfo列表
+		studentInfoRouterWithoutRecord.GET("findStudentInfo", studentInfoApi.FindStudentInfo) // 根据UID获取StudentInfo
 	}
 }

@@ -81,6 +81,12 @@ func (s *NoAuthRouter) InitNoAuthRouter(Router *gin.RouterGroup) {
 			userRouter.POST("login", userInfoApi.UserToLogin)
 			userRouter.GET("findPhoneInfo", userInfoApi.GetInfoByPhone)
 		}
+		//字典管理
+		sysDictionaryRouter := NoAuthRouterWithoutRecord.Group("sysDictionary")
+		sysDictionaryApi := v1.ApiGroupApp.SystemApiGroup.DictionaryApi
+		{
+			sysDictionaryRouter.GET("findSysDictionary", sysDictionaryApi.FindSysDictionary) // 根据ID获取SysDictionary
+		}
 	}
 
 }

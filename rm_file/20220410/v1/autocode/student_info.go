@@ -3,8 +3,6 @@ package autocode
 import (
 	"github.com/flipped-aurora/gin-vue-admin/server/global"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/autocode"
-	autocodeReq "github.com/flipped-aurora/gin-vue-admin/server/model/autocode/request"
-	"github.com/flipped-aurora/gin-vue-admin/server/model/common/request"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/common/response"
 	"github.com/flipped-aurora/gin-vue-admin/server/service"
 	"github.com/gin-gonic/gin"
@@ -56,26 +54,6 @@ func (studentInfoApi *StudentInfoApi) DeleteStudentInfo(c *gin.Context) {
 	}
 }
 
-// DeleteStudentInfoByIds 批量删除StudentInfo
-// @Tags StudentInfo
-// @Summary 批量删除StudentInfo
-// @Security ApiKeyAuth
-// @accept application/json
-// @Produce application/json
-// @Param data body request.IdsReq true "批量删除StudentInfo"
-// @Success 200 {string} string "{"success":true,"data":{},"msg":"批量删除成功"}"
-// @Router /studentInfo/deleteStudentInfoByIds [delete]
-func (studentInfoApi *StudentInfoApi) DeleteStudentInfoByIds(c *gin.Context) {
-	var IDS request.IdsReq
-	_ = c.ShouldBindJSON(&IDS)
-	if err := studentInfoService.DeleteStudentInfoByIds(IDS); err != nil {
-		global.GVA_LOG.Error("批量删除失败!", zap.Error(err))
-		response.FailWithMessage("批量删除失败", c)
-	} else {
-		response.OkWithMessage("批量删除成功", c)
-	}
-}
-
 // UpdateStudentInfo 更新StudentInfo
 // @Tags StudentInfo
 // @Summary 更新StudentInfo
@@ -108,35 +86,10 @@ func (studentInfoApi *StudentInfoApi) UpdateStudentInfo(c *gin.Context) {
 func (studentInfoApi *StudentInfoApi) FindStudentInfo(c *gin.Context) {
 	var studentInfo autocode.StudentInfo
 	_ = c.ShouldBindQuery(&studentInfo)
-	if err, restudentInfo := studentInfoService.GetStudentInfo(studentInfo.ID); err != nil {
+	if err, restudentInfo := studentInfoService.GetStudentInfo(studentInfo.UId); err != nil {
 		global.GVA_LOG.Error("查询失败!", zap.Error(err))
 		response.FailWithMessage("查询失败", c)
 	} else {
 		response.OkWithData(gin.H{"restudentInfo": restudentInfo}, c)
-	}
-}
-
-// GetStudentInfoList 分页获取StudentInfo列表
-// @Tags StudentInfo
-// @Summary 分页获取StudentInfo列表
-// @Security ApiKeyAuth
-// @accept application/json
-// @Produce application/json
-// @Param data query autocodeReq.StudentInfoSearch true "分页获取StudentInfo列表"
-// @Success 200 {string} string "{"success":true,"data":{},"msg":"获取成功"}"
-// @Router /studentInfo/getStudentInfoList [get]
-func (studentInfoApi *StudentInfoApi) GetStudentInfoList(c *gin.Context) {
-	var pageInfo autocodeReq.StudentInfoSearch
-	_ = c.ShouldBindQuery(&pageInfo)
-	if err, list, total := studentInfoService.GetStudentInfoInfoList(pageInfo); err != nil {
-		global.GVA_LOG.Error("获取失败!", zap.Error(err))
-		response.FailWithMessage("获取失败", c)
-	} else {
-		response.OkWithDetailed(response.PageResult{
-			List:     list,
-			Total:    total,
-			Page:     pageInfo.Page,
-			PageSize: pageInfo.PageSize,
-		}, "获取成功", c)
 	}
 }

@@ -2,17 +2,8 @@
   <div>
     <div class="gva-search-box">
       <el-form :inline="true" :model="searchInfo" class="demo-form-inline">
-        <el-form-item label="人事编号">
-          <el-input v-model="searchInfo.personnelId" placeholder="搜索条件" />
-        </el-form-item>
-        <el-form-item label="教务编号">
-          <el-input v-model="searchInfo.officeId" placeholder="搜索条件" />
-        </el-form-item>
-        <el-form-item label="财务编号">
-          <el-input v-model="searchInfo.financialId" placeholder="搜索条件" />
-        </el-form-item>
-        <el-form-item label="手机号">
-          <el-input v-model="searchInfo.phone" placeholder="搜索条件" />
+        <el-form-item label="学号">
+          <el-input v-model="searchInfo.studentId" placeholder="搜索条件" />
         </el-form-item>
         <el-form-item label="姓名">
           <el-input v-model="searchInfo.realName" placeholder="搜索条件" />
@@ -20,8 +11,17 @@
         <el-form-item label="性别">
           <el-input v-model="searchInfo.gender" placeholder="搜索条件" />
         </el-form-item>
+        <el-form-item label="年级">
+          <el-input v-model="searchInfo.grade" placeholder="搜索条件" />
+        </el-form-item>
         <el-form-item label="学院">
           <el-input v-model="searchInfo.department" placeholder="搜索条件" />
+        </el-form-item>
+        <el-form-item label="专业">
+          <el-input v-model="searchInfo.major" placeholder="搜索条件" />
+        </el-form-item>
+        <el-form-item label="班级">
+          <el-input v-model="searchInfo.classNum" placeholder="搜索条件" />
         </el-form-item>
         <el-form-item>
           <el-button size="small" type="primary" icon="search" @click="onSubmit">查询</el-button>
@@ -61,9 +61,7 @@
         <el-table-column align="left" label="日期" width="180">
           <template #default="scope">{{ formatDate(scope.row.CreatedAt) }}</template>
         </el-table-column>
-        <el-table-column align="left" label="人事编号" prop="personnelId" width="120" />
-        <el-table-column align="left" label="教务编号" prop="officeId" width="120" />
-        <el-table-column align="left" label="财务编号" prop="financialId" width="120" />
+        <el-table-column align="left" label="学号" prop="studentId" width="120" />
         <el-table-column align="left" label="手机号" prop="phone" width="120" />
         <el-table-column align="left" label="密码" prop="password" width="120" />
         <el-table-column align="left" label="用户身份" prop="authorityId" width="120" />
@@ -78,19 +76,22 @@
         <el-table-column align="left" label="性别" prop="gender" width="120">
           <template #default="scope">{{ filterDict(scope.row.gender, genderOptions) }}</template>
         </el-table-column>
-        <el-table-column align="left" label="学院" prop="department" width="120" />
-        <el-table-column align="left" label="专业方向" prop="major" width="120" />
-        <el-table-column align="left" label="职称" prop="position" width="120" />
-        <el-table-column align="left" label="特长" prop="specialty" width="120" />
         <el-table-column align="left" label="学历" prop="degree" width="120" />
+        <el-table-column align="left" label="年级" prop="grade" width="120" />
+        <el-table-column align="left" label="学院" prop="department" width="120" />
+        <el-table-column align="left" label="专业" prop="major" width="120" />
+        <el-table-column align="left" label="班级" prop="classNum" width="120" />
+        <el-table-column align="left" label="特长" prop="specialty" width="120" />
+        <el-table-column align="left" label="QQ号" prop="QQ" width="120" />
+        <el-table-column align="left" label="微信号" prop="wechat" width="120" />
         <el-table-column align="left" label="银行名称" prop="bankName" width="120" />
         <el-table-column align="left" label="银行卡号" prop="bankCardNumber" width="120" />
         <el-table-column
           align="left"
           label="介绍"
           prop="introduction"
-          show-overflow-tooltip
           width="120"
+          show-overflow-tooltip
         />
         <el-table-column align="left" label="按钮组" width="120" fixed>
           <template #default="scope">
@@ -99,7 +100,7 @@
               icon="edit"
               size="small"
               class="table-button"
-              @click="updateTeacherInfoFunc(scope.row)"
+              @click="updateStudentInfoFunc(scope.row)"
             >变更</el-button>
             <el-button type="text" icon="delete" size="small" @click="deleteRow(scope.row)">删除</el-button>
           </template>
@@ -119,14 +120,8 @@
     </div>
     <el-dialog v-model="dialogFormVisible" :before-close="closeDialog" title="弹窗操作">
       <el-form :model="formData" label-position="right" label-width="80px">
-        <el-form-item label="人事编号:">
-          <el-input v-model="formData.personnelId" clearable placeholder="请输入" />
-        </el-form-item>
-        <el-form-item label="教务编号:">
-          <el-input v-model="formData.officeId" clearable placeholder="请输入" />
-        </el-form-item>
-        <el-form-item label="财务编号:">
-          <el-input v-model="formData.financialId" clearable placeholder="请输入" />
+        <el-form-item label="学号:">
+          <el-input v-model="formData.studentId" clearable placeholder="请输入" />
         </el-form-item>
         <el-form-item label="手机号:">
           <el-input v-model="formData.phone" clearable placeholder="请输入" />
@@ -159,20 +154,29 @@
             />
           </el-select>
         </el-form-item>
+        <el-form-item label="学历:">
+          <el-input v-model="formData.degree" clearable placeholder="请输入" />
+        </el-form-item>
+        <el-form-item label="年级:">
+          <el-input v-model="formData.grade" clearable placeholder="请输入" />
+        </el-form-item>
         <el-form-item label="学院:">
           <el-input v-model="formData.department" clearable placeholder="请输入" />
         </el-form-item>
-        <el-form-item label="专业方向:">
+        <el-form-item label="专业:">
           <el-input v-model="formData.major" clearable placeholder="请输入" />
         </el-form-item>
-        <el-form-item label="职称:">
-          <el-input v-model="formData.position" clearable placeholder="请输入" />
+        <el-form-item label="班级:">
+          <el-input v-model="formData.classNum" clearable placeholder="请输入" />
         </el-form-item>
         <el-form-item label="特长:">
           <el-input v-model="formData.specialty" clearable placeholder="请输入" />
         </el-form-item>
-        <el-form-item label="学历:">
-          <el-input v-model="formData.degree" clearable placeholder="请输入" />
+        <el-form-item label="QQ号:">
+          <el-input v-model="formData.QQ" clearable placeholder="请输入" />
+        </el-form-item>
+        <el-form-item label="微信号:">
+          <el-input v-model="formData.wechat" clearable placeholder="请输入" />
         </el-form-item>
         <el-form-item label="银行名称:">
           <el-input v-model="formData.bankName" clearable placeholder="请输入" />
@@ -196,19 +200,19 @@
 
 <script>
 export default {
-  name: 'TeacherInfo'
+  name: 'StudentInfo'
 }
 </script>
 
 <script setup>
 import {
-  createTeacherInfo,
-  deleteTeacherInfo,
-  deleteTeacherInfoByIds,
-  updateTeacherInfo,
-  findTeacherInfo,
-  getTeacherInfoList
-} from '@/api/teacherInfo'
+  createStudentInfo,
+  deleteStudentInfo,
+  deleteStudentInfoByIds,
+  updateStudentInfo,
+  findStudentInfo,
+  getStudentInfoList
+} from '@/api/studentInfo'
 
 // 全量引入格式化工具 请按需保留
 import { getDictFunc, formatDate, filterDict } from '@/utils/format'
@@ -218,9 +222,7 @@ import { ref } from 'vue'
 // 自动化生成的字典（可能为空）以及字段
 const genderOptions = ref([])
 const formData = ref({
-  personnelId: '',
-  officeId: '',
-  financialId: '',
+  studentId: '',
   phone: '',
   password: '',
   authorityId: '',
@@ -229,11 +231,14 @@ const formData = ref({
   avatar: '',
   realName: '',
   gender: undefined,
+  degree: '',
+  grade: '',
   department: '',
   major: '',
-  position: '',
+  classNum: '',
   specialty: '',
-  degree: '',
+  QQ: '',
+  wechat: '',
   bankName: '',
   bankCardNumber: '',
   introduction: '',
@@ -272,7 +277,7 @@ const handleCurrentChange = (val) => {
 
 // 查询
 const getTableData = async () => {
-  const table = await getTeacherInfoList({ page: page.value, pageSize: pageSize.value, ...searchInfo.value })
+  const table = await getStudentInfoList({ page: page.value, pageSize: pageSize.value, ...searchInfo.value })
   if (table.code === 0) {
     tableData.value = table.data.list
     total.value = table.data.total
@@ -307,7 +312,7 @@ const deleteRow = (row) => {
     cancelButtonText: '取消',
     type: 'warning'
   }).then(() => {
-    deleteTeacherInfoFunc(row)
+    deleteStudentInfoFunc(row)
   })
 }
 
@@ -328,7 +333,7 @@ const onDelete = async () => {
     multipleSelection.value.map(item => {
       ids.push(item.ID)
     })
-  const res = await deleteTeacherInfoByIds({ ids })
+  const res = await deleteStudentInfoByIds({ ids })
   if (res.code === 0) {
     ElMessage({
       type: 'success',
@@ -346,18 +351,18 @@ const onDelete = async () => {
 const type = ref('')
 
 // 更新行
-const updateTeacherInfoFunc = async (row) => {
-  const res = await findTeacherInfo({ ID: row.ID })
+const updateStudentInfoFunc = async (row) => {
+  const res = await findStudentInfo({ ID: row.ID })
   type.value = 'update'
   if (res.code === 0) {
-    formData.value = res.data.reteacherInfo
+    formData.value = res.data.restudentInfo
     dialogFormVisible.value = true
   }
 }
 
 // 删除行
-const deleteTeacherInfoFunc = async (row) => {
-  const res = await deleteTeacherInfo({ ID: row.ID })
+const deleteStudentInfoFunc = async (row) => {
+  const res = await deleteStudentInfo({ ID: row.ID })
   if (res.code === 0) {
     ElMessage({
       type: 'success',
@@ -383,9 +388,7 @@ const openDialog = () => {
 const closeDialog = () => {
   dialogFormVisible.value = false
   formData.value = {
-    personnelId: '',
-    officeId: '',
-    financialId: '',
+    studentId: '',
     phone: '',
     password: '',
     authorityId: '',
@@ -394,11 +397,14 @@ const closeDialog = () => {
     avatar: '',
     realName: '',
     gender: undefined,
+    degree: '',
+    grade: '',
     department: '',
     major: '',
-    position: '',
+    classNum: '',
     specialty: '',
-    degree: '',
+    QQ: '',
+    wechat: '',
     bankName: '',
     bankCardNumber: '',
     introduction: '',
@@ -409,13 +415,13 @@ const enterDialog = async () => {
   let res
   switch (type.value) {
     case 'create':
-      res = await createTeacherInfo(formData.value)
+      res = await createStudentInfo(formData.value)
       break
     case 'update':
-      res = await updateTeacherInfo(formData.value)
+      res = await updateStudentInfo(formData.value)
       break
     default:
-      res = await createTeacherInfo(formData.value)
+      res = await createStudentInfo(formData.value)
       break
   }
   if (res.code === 0) {

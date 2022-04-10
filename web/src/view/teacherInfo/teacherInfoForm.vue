@@ -11,8 +11,14 @@
         <el-form-item label="财务编号:">
           <el-input v-model="formData.financialId" clearable placeholder="请输入" />
         </el-form-item>
-        <el-form-item label="用户编号:">
-          <el-input v-model.number="formData.uId" clearable placeholder="请输入" />
+        <el-form-item label="手机号:">
+          <el-input v-model="formData.phone" clearable placeholder="请输入" />
+        </el-form-item>
+        <el-form-item label="密码:">
+          <el-input v-model="formData.password" clearable placeholder="请输入" />
+        </el-form-item>
+        <el-form-item label="用户身份:">
+          <el-input v-model="formData.authorityId" clearable placeholder="请输入" />
         </el-form-item>
         <el-form-item label="昵称:">
           <el-input v-model="formData.nickname" clearable placeholder="请输入" />
@@ -61,8 +67,8 @@
           <el-input v-model="formData.introduction" clearable placeholder="请输入" />
         </el-form-item>
         <el-form-item>
-          <el-button size="small" type="primary" @click="save">保存</el-button>
-          <el-button size="small" type="primary" @click="back">返回</el-button>
+          <el-button size="mini" type="primary" @click="save">保存</el-button>
+          <el-button size="mini" type="primary" @click="back">返回</el-button>
         </el-form-item>
       </el-form>
     </div>
@@ -86,7 +92,7 @@ import {
 import { getDictFunc } from '@/utils/format'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import { ref, defineProps, watch } from 'vue'
+import { ref } from 'vue'
 const route = useRoute()
 const router = useRouter()
 const type = ref('')
@@ -95,7 +101,9 @@ const formData = ref({
   personnelId: '',
   officeId: '',
   financialId: '',
-  uId: 0,
+  phone: '',
+  password: '',
+  authorityId: '',
   nickname: '',
   email: '',
   avatar: '',
@@ -115,7 +123,7 @@ const formData = ref({
 const init = async () => {
   // 建议通过url传参获取目标数据ID 调用 find方法进行查询数据操作 从而决定本页面是create还是update 以下为id作为url参数示例
   if (route.query.id) {
-    const res = await findTeacherInfo({ uId: route.query.id })
+    const res = await findTeacherInfo({ ID: route.query.id })
     if (res.code === 0) {
       formData.value = res.data.reteacherInfo
       type.value = 'update'
@@ -123,7 +131,6 @@ const init = async () => {
   } else {
     type.value = 'create'
   }
-
   genderOptions.value = await getDictFunc('gender')
 }
 
@@ -155,32 +162,6 @@ const back = () => {
   router.go(-1)
 }
 
-// =========== 自定义部分 ===========
-const props = defineProps({
-  uid: {
-    type: Number,
-    default: 0
-  }
-})
-// 监听count
-watch(
-  () => props.uid,
-  async (newVal, oldVal) => {
-    console.log('%c 🥔 oldVal: ', 'font-size:20px;background-color: #E41A6A;color:#fff;', oldVal)
-    console.log('%c 🍉 newVal: ', 'font-size:20px;background-color: #4b4b4b;color:#fff;', newVal)
-    if (newVal > 0) {
-      const res = await findTeacherInfo({ uId: newVal })
-      if (res.code === 0) {
-        formData.value = res.data.reteacherInfo
-        type.value = 'update'
-      }
-    }
-  },
-  {
-    immediate: true, // 立即执行
-    deep: true // 深度监听
-  }
-)
 </script>
 
 <style>

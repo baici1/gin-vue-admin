@@ -129,49 +129,60 @@ func (userInfoService *UserInfoService) CreateUserByRegister(userInfo autocode.U
 		tx.Rollback()
 		return
 	}
-	//需要根据身份去创建一个基本的用户信息（老师与学生）
-	if userInfo.Identity == 2019 {
-		stu := autocode.StudentInfo{
-			UId:      int(userInfo.ID),
-			Nickname: userInfo.Phone,
-			Avatar:   `http://project.yangdiy.cn/16483710248249a5f4881211ebb6edd017c2d2eca2.jpg`,
-			RealName: userInfo.Phone,
-		}
-		err = global.GVA_DB.Create(&stu).Error
-	} else {
-		tea := autocode.TeacherInfo{
-			UId:      int(userInfo.ID),
-			Nickname: userInfo.Phone,
-			Avatar:   `http://project.yangdiy.cn/16483710248249a5f4881211ebb6edd017c2d2eca2.jpg`,
-			RealName: userInfo.Phone,
-		}
-		err = global.GVA_DB.Create(&tea).Error
-	}
-	if err != nil {
-		tx.Rollback()
-		return
-	}
+	////需要根据身份去创建一个基本的用户信息（老师与学生）
+	//if userInfo.Identity == 2019 {
+	//	stu := autocode.StudentInfo{
+	//		Nickname: userInfo.Phone,
+	//		Avatar:   `http://project.yangdiy.cn/16483710248249a5f4881211ebb6edd017c2d2eca2.jpg`,
+	//		RealName: userInfo.Phone,
+	//	}
+	//	err = global.GVA_DB.Create(&stu).Error
+	//} else {
+	//	tea := autocode.TeacherInfo{
+	//		Nickname: userInfo.Phone,
+	//		Avatar:   `http://project.yangdiy.cn/16483710248249a5f4881211ebb6edd017c2d2eca2.jpg`,
+	//		RealName: userInfo.Phone,
+	//	}
+	//	err = global.GVA_DB.Create(&tea).Error
+	//}
+	//if err != nil {
+	//	tx.Rollback()
+	//	return
+	//}
 	tx.Commit()
 	return
 }
 
-func (userInfoService *UserInfoService) UserToLogin(u autocode.UserInfo) (err error, userInter *autocode.UserInfo) {
-	var user autocode.UserInfo
+func (userInfoService *UserInfoService) UserToLogin(phone, password string) (error, interface{}) {
+	var err error
 	//密码加密进行比较
-	u.Password = utils.MD5V([]byte(u.Password))
-	err = global.GVA_DB.Where("phone=? and password=?", u.Phone, u.Password).Preload("Authority").First(&user).Error
-	if user.Check != 1 {
-		return errors.New("当前用户需要审核！请等待审核！"), nil
+	password = utils.MD5V([]byte(password))
+	//首先查询学生表
+	var stu autocode.StudentInfo
+	err = global.GVA_DB.Where("phone=? and password=?", phone, password).Preload("Authority").First(&stu).Error
+
+	//如果可以找到
+	if err == nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		var am system.SysMenu
+		ferr := global.GVA_DB.First(&am, "name = ? AND authority_id = ?", stu.Authority.DefaultRouter, stu.AuthorityId).Error
+		if errors.Is(ferr, gorm.ErrRecordNotFound) {
+			stu.Authority.DefaultRouter = "404"
+		}
+		return err, stu
 	}
+	//然后查询教师表
+	var tea autocode.TeacherInfo
+	err = global.GVA_DB.Where("phone=? and password=?", phone, password).Preload("Authority").First(&tea).Error
 	//如果可以找到
 	if err == nil {
 		var am system.SysMenu
-		ferr := global.GVA_DB.First(&am, "name = ? AND authority_id = ?", user.Authority.DefaultRouter, user.Identity).Error
+		ferr := global.GVA_DB.First(&am, "name = ? AND authority_id = ?", tea.Authority.DefaultRouter, tea.AuthorityId).Error
 		if errors.Is(ferr, gorm.ErrRecordNotFound) {
-			user.Authority.DefaultRouter = "404"
+			tea.Authority.DefaultRouter = "404"
 		}
+		return err, tea
 	}
-	return err, &user
+	return err, nil
 }
 
 func (userInfoService *UserInfoService) GetInfoByPhone(pre string) (err error, data autocode.UserInfo) {

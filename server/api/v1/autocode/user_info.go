@@ -14,7 +14,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/go-redis/redis/v8"
 	"go.uber.org/zap"
-	"strconv"
 )
 
 var jwtService = service.ServiceGroupApp.SystemServiceGroup.JwtService
@@ -183,17 +182,23 @@ func (userInfoApi *UserInfoApi) UserToLogin(c *gin.Context) {
 		response.ValidatorError(err, c)
 		return
 	}
-	//校验码验证：现阶段先不放
+	//校验码验证
 	if store.Verify(param.CaptchaId, param.Captcha, true) {
-		if err, user := userInfoService.UserToLogin(autocode.UserInfo{
-			Password: param.Password,
-			Phone:    param.Phone,
-		}); err != nil {
+		if err, user := userInfoService.UserToLogin(param.Phone, param.Password); err != nil {
 			global.GVA_LOG.Error("登陆失败!", zap.Error(err))
 			response.FailWithMessage("用户名不存在或者密码错误", c)
 		} else {
-			//签发token
-			userInfoApi.tokenNext(c, *user)
+			//对user进行断言
+			stu, ok := user.(autocode.StudentInfo)
+			if ok {
+				//签发token
+				userInfoApi.tokenNextStu(c, stu)
+			}
+			tea, ok := user.(autocode.TeacherInfo)
+			if ok {
+				userInfoApi.tokenNextTea(c, tea)
+			}
+
 			//response.OkWithData(user, c)
 		}
 	} else {
@@ -201,13 +206,15 @@ func (userInfoApi *UserInfoApi) UserToLogin(c *gin.Context) {
 	}
 }
 
-func (userInfoApi *UserInfoApi) tokenNext(c *gin.Context, user autocode.UserInfo) {
+func (userInfoApi *UserInfoApi) tokenNextStu(c *gin.Context, user autocode.StudentInfo) {
 	j := &utils.JWT{SigningKey: []byte(global.GVA_CONFIG.JWT.SigningKey)} // 唯一签名
+	//设置负载
 	claims := j.CreateClaims(systemReq.BaseClaims{
 		ID:          user.ID,
-		Username:    user.Phone,
-		AuthorityId: strconv.Itoa(user.Identity),
+		Username:    user.RealName,
+		AuthorityId: user.AuthorityId,
 	})
+	//创建token
 	token, err := j.CreateToken(claims)
 	if err != nil {
 		global.GVA_LOG.Error("获取token失败!", zap.Error(err))
@@ -222,8 +229,9 @@ func (userInfoApi *UserInfoApi) tokenNext(c *gin.Context, user autocode.UserInfo
 		}, "登录成功", c)
 		return
 	}
-
+	//通过user.phone存储token
 	if err, jwtStr := jwtService.GetRedisJWT(user.Phone); err == redis.Nil {
+		//当redis没有情况
 		if err := jwtService.SetRedisJWT(token, user.Phone); err != nil {
 			global.GVA_LOG.Error("设置登录状态失败!", zap.Error(err))
 			response.FailWithMessage("设置登录状态失败", c)
@@ -238,6 +246,7 @@ func (userInfoApi *UserInfoApi) tokenNext(c *gin.Context, user autocode.UserInfo
 		global.GVA_LOG.Error("设置登录状态失败!", zap.Error(err))
 		response.FailWithMessage("设置登录状态失败", c)
 	} else {
+		//如果存在需要存入黑名单里面
 		var blackJWT sys.JwtBlacklist
 		blackJWT.Jwt = jwtStr
 		if err := jwtService.JsonInBlacklist(blackJWT); err != nil {
@@ -255,7 +264,64 @@ func (userInfoApi *UserInfoApi) tokenNext(c *gin.Context, user autocode.UserInfo
 		}, "登录成功", c)
 	}
 }
-
+func (userInfoApi *UserInfoApi) tokenNextTea(c *gin.Context, user autocode.TeacherInfo) {
+	j := &utils.JWT{SigningKey: []byte(global.GVA_CONFIG.JWT.SigningKey)} // 唯一签名
+	//设置负载
+	claims := j.CreateClaims(systemReq.BaseClaims{
+		ID:          user.ID,
+		Username:    user.RealName,
+		AuthorityId: user.AuthorityId,
+	})
+	//创建token
+	token, err := j.CreateToken(claims)
+	if err != nil {
+		global.GVA_LOG.Error("获取token失败!", zap.Error(err))
+		response.FailWithMessage("获取token失败", c)
+		return
+	}
+	if !global.GVA_CONFIG.System.UseMultipoint {
+		response.OkWithDetailed(autocodeRes.LoginResponse{
+			User:      user,
+			Token:     token,
+			ExpiresAt: claims.StandardClaims.ExpiresAt * 1000,
+		}, "登录成功", c)
+		return
+	}
+	//通过user.phone存储token
+	if err, jwtStr := jwtService.GetRedisJWT(user.Phone); err == redis.Nil {
+		//当redis没有情况
+		if err := jwtService.SetRedisJWT(token, user.Phone); err != nil {
+			global.GVA_LOG.Error("设置登录状态失败!", zap.Error(err))
+			response.FailWithMessage("设置登录状态失败", c)
+			return
+		}
+		response.OkWithDetailed(autocodeRes.LoginResponse{
+			User:      user,
+			Token:     token,
+			ExpiresAt: claims.StandardClaims.ExpiresAt * 1000,
+		}, "登录成功", c)
+	} else if err != nil {
+		global.GVA_LOG.Error("设置登录状态失败!", zap.Error(err))
+		response.FailWithMessage("设置登录状态失败", c)
+	} else {
+		//如果存在需要存入黑名单里面
+		var blackJWT sys.JwtBlacklist
+		blackJWT.Jwt = jwtStr
+		if err := jwtService.JsonInBlacklist(blackJWT); err != nil {
+			response.FailWithMessage("jwt作废失败", c)
+			return
+		}
+		if err := jwtService.SetRedisJWT(token, user.Phone); err != nil {
+			response.FailWithMessage("设置登录状态失败", c)
+			return
+		}
+		response.OkWithDetailed(autocodeRes.LoginResponse{
+			User:      user,
+			Token:     token,
+			ExpiresAt: claims.StandardClaims.ExpiresAt * 1000,
+		}, "登录成功", c)
+	}
+}
 func (userInfoApi *UserInfoApi) GetInfoByPhone(c *gin.Context) {
 	var param = struct {
 		Phone string `json:"phone" form:"phone" `
