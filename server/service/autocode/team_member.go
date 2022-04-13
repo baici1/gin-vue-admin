@@ -2,6 +2,7 @@ package autocode
 
 import (
 	"errors"
+	"fmt"
 	"github.com/flipped-aurora/gin-vue-admin/server/global"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/autocode"
 	autoCodeReq "github.com/flipped-aurora/gin-vue-admin/server/model/autocode/request"
@@ -67,26 +68,35 @@ func (teamMemberService *TeamMemberService) GetTeamMemberInfoList(info autoCodeR
 
 func (teamMemberService *TeamMemberService) CreateOwnTeamMember(member autoCodeReq.OwnTeamMember) (err error) {
 	//phone存在，去user表获取id
-	var user autocode.UserInfo
+	var user autocode.StudentInfo
 	//保证用户已注册账号
 	if errors.Is(global.GVA_DB.Where("phone=?", member.Phone).First(&user).Error, gorm.ErrRecordNotFound) {
 		return errors.New("当前用户未注册账号！无法添加！")
 	}
+	fmt.Println("u_id", user.ID)
 	//保证用户没有参与当前团队或者用户没有加入过团队
-	if !errors.Is(global.GVA_DB.Where("u_id=?", user.ID).First(&autocode.TeamMember{}).Error, gorm.ErrRecordNotFound) {
-		//如果之前已经加入后又删除了
-		if err := global.GVA_DB.Unscoped().Where("u_id=? and deleted_at IS NOT NULL", user.ID).First(&autocode.TeamMember{}).Error; err == nil {
-			return global.GVA_DB.Exec("UPDATE team_member SET deleted_at=null WHERE u_id=?;", user.ID).Error
+	//查询当前用户是否已经加入过团队
+	err = global.GVA_DB.Where("u_id=?", user.ID).First(&autocode.TeamMember{}).Error
+	//有三种可能，一种是没有加入过团队 err!=nil，一种是已经加入过团队 err==nil，还有一种是加入了但是被删除了
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			//如果之前已经加入后又删除了
+			if err := global.GVA_DB.Unscoped().Where("u_id=? and deleted_at IS NOT NULL", user.ID).First(&autocode.TeamMember{}).Error; err == nil {
+				return global.GVA_DB.Exec("UPDATE team_member SET deleted_at=null WHERE u_id=?;", user.ID).Error
+			}
+			var param = autocode.TeamMember{
+				TeamId:   int(member.TeamId),
+				UId:      int(user.ID),
+				Identify: member.Identify,
+			}
+			//创建团队成员
+			return global.GVA_DB.Create(&param).Error
+		} else {
+			return err
 		}
+	} else {
 		return errors.New("当前用户已加入团队！无法添加！")
 	}
-	var param = autocode.TeamMember{
-		TeamId:   int(member.TeamId),
-		UId:      int(user.ID),
-		Identify: member.Identify,
-	}
-	//创建团队成员
-	return global.GVA_DB.Create(&param).Error
 }
 
 func (teamMemberService *TeamMemberService) GetTeamIDByUser(uid int) (error, int) {

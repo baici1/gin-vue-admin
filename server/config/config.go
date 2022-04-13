@@ -26,5 +26,6 @@ type Server struct {
 	Timer Timer `mapstructure:"timer" json:"timer" yaml:"timer"`
 
 	// 跨域配置
-	Cors CORS `mapstructure:"cors" json:"cors" yaml:"cors"`
+	Cors     CORS     `mapstructure:"cors" json:"cors" yaml:"cors"`
+	Rabbitmq Rabbitmq `mapstructure:"rabbitmq" json:"rabbitmq" yaml:"rabbitmq"`
 }

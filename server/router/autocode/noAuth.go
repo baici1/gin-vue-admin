@@ -79,7 +79,7 @@ func (s *NoAuthRouter) InitNoAuthRouter(Router *gin.RouterGroup) {
 		{
 			userRouter.POST("register", userInfoApi.CreateUserByRegister)
 			userRouter.POST("login", userInfoApi.UserToLogin)
-			userRouter.GET("findPhoneInfo", userInfoApi.GetInfoByPhone)
+			userRouter.GET("findID", userInfoApi.GetInfoByPhone)
 		}
 		//字典管理
 		sysDictionaryRouter := NoAuthRouterWithoutRecord.Group("sysDictionary")

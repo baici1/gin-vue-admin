@@ -188,11 +188,26 @@ func (entryFormService *EntryFormService) UpdateEntryFormByUser(param autoCodeRe
 		} else {
 			item.FormId = int(param.ID)
 			item.Order = i
-			err = tx.Model(&autocode.EntryMember{}).Create(&item).Error
-			if err != nil {
-				tx.Rollback()
-				return err
+			//能否找到，有可能是软删除
+			if err := global.GVA_DB.Unscoped().Where("u_id=? and deleted_at IS NOT NULL", item.UId).First(&autocode.EntryMember{}).Error; err == nil {
+				err = tx.Exec("UPDATE entry_member SET deleted_at=null WHERE u_id=?;", item.UId).Error
+				if err != nil {
+					tx.Rollback()
+					return err
+				}
+				err = tx.Save(&item).Error
+				if err != nil {
+					tx.Rollback()
+					return err
+				}
+			} else {
+				err = tx.Model(&autocode.EntryMember{}).Create(&item).Error
+				if err != nil {
+					tx.Rollback()
+					return err
+				}
 			}
+
 		}
 		//将遍历的删除
 		delete(original, mem{

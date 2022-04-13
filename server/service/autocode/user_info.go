@@ -185,8 +185,8 @@ func (userInfoService *UserInfoService) UserToLogin(phone, password string) (err
 	return err, nil
 }
 
-func (userInfoService *UserInfoService) GetInfoByPhone(pre string) (err error, data autocode.UserInfo) {
-	fmt.Println(pre)
-	err = global.GVA_DB.Where("phone = ? ", pre).First(&data).Error
-	return err, data
+func (userInfoService *UserInfoService) GetInfoByPhone(phone string) (err error, id int) {
+	fmt.Println(phone)
+	err = global.GVA_DB.Raw("SELECT id FROM student_info WHERE phone = ?", phone).Scan(&id).Error
+	return
 }
