@@ -2,35 +2,62 @@
   <div>
     <div class="gva-search-box">
       <el-form :inline="true" :model="searchInfo" class="demo-form-inline">
-        <el-form-item label="竞赛级别">
-          <el-input v-model="searchInfo.level" placeholder="搜索条件" />
-        </el-form-item>
         <el-form-item label="比赛的届数">
           <el-input v-model="searchInfo.version" placeholder="搜索条件" />
         </el-form-item>
+        <el-form-item label="年份">
+          <el-input v-model="searchInfo.year" placeholder="搜索条件" />
+        </el-form-item>
+        <el-form-item label="是否发布" prop="publish">
+          <el-select
+            v-model="searchInfo.publish"
+            clearable
+            placeholder="请选择"
+          >
+            <el-option key="true" label="是" value="true" />
+            <el-option key="false" label="否" value="false" />
+          </el-select>
+        </el-form-item>
         <el-form-item>
-          <el-button size="small" type="primary" icon="search" @click="onSubmit">查询</el-button>
-          <el-button size="small" icon="refresh" @click="onReset">重置</el-button>
+          <el-button
+            size="small"
+            type="primary"
+            icon="search"
+            @click="onSubmit"
+          >
+            查询
+          </el-button>
+          <el-button size="small" icon="refresh" @click="onReset">
+            重置
+          </el-button>
         </el-form-item>
       </el-form>
     </div>
     <div class="gva-table-box">
       <div class="gva-btn-list">
-        <el-button size="small" type="primary" icon="plus" @click="openDialog">新增</el-button>
+        <el-button size="small" type="primary" icon="plus" @click="openDialog">
+          新增
+        </el-button>
         <el-popover v-model:visible="deleteVisible" placement="top" width="160">
           <p>确定要删除吗？</p>
-          <div style="text-align: right; margin-top: 8px;">
-            <el-button size="small" type="text" @click="deleteVisible = false">取消</el-button>
-            <el-button size="small" type="primary" @click="onDelete">确定</el-button>
+          <div style="text-align: right; margin-top: 8px">
+            <el-button size="small" type="text" @click="deleteVisible = false">
+              取消
+            </el-button>
+            <el-button size="small" type="primary" @click="onDelete">
+              确定
+            </el-button>
           </div>
           <template #reference>
             <el-button
               icon="delete"
               size="small"
-              style="margin-left: 10px;"
+              style="margin-left: 10px"
               :disabled="!multipleSelection.length"
               @click="deleteVisible = true"
-            >删除</el-button>
+            >
+              删除
+            </el-button>
           </template>
         </el-popover>
       </div>
@@ -44,24 +71,39 @@
       >
         <el-table-column type="selection" width="55" />
         <el-table-column align="left" label="日期" width="180">
-          <template #default="scope">{{ formatDate(scope.row.CreatedAt) }}</template>
+          <template #default="scope">{{
+            formatDate(scope.row.CreatedAt)
+          }}</template>
         </el-table-column>
-        <!-- <el-table-column align="left" label="竞赛编号" prop="cId" width="120" /> -->
-        <el-table-column align="left" label="竞赛级别" prop="level" width="120">
-          <template #default="scope">{{ filterDict(scope.row.level, competitionLevelOptions) }}</template>
-        </el-table-column>
-        <el-table-column align="left" label="比赛的届数" prop="version" width="120" />
-        <el-table-column align="left" label="报名开始日期" width="180">
-          <template #default="scope">{{ formatDate(scope.row.startTime) }}</template>
-        </el-table-column>
-        <el-table-column align="left" label="报名截止日期" width="180">
-          <template #default="scope">{{ formatDate(scope.row.endTime) }}</template>
-        </el-table-column>
-        <el-table-column align="left" label="比赛开始时间" width="180">
-          <template #default="scope">{{ formatDate(scope.row.rStartTime) }}</template>
-        </el-table-column>
-        <el-table-column align="left" label="比赛结束时间" prop="rEndTime" width="180">
-          <template #default="scope">{{ formatDate(scope.row.rEndTime) }}</template>
+        <el-table-column align="left" label="竞赛编号" prop="cId" width="120" />
+        <el-table-column
+          align="left"
+          label="比赛的届数"
+          prop="version"
+          width="120"
+        />
+        <el-table-column
+          align="left"
+          label="报名开始日期"
+          prop="startTime"
+          width="120"
+        />
+        <el-table-column
+          align="left"
+          label="报名截止日期"
+          prop="endTime"
+          width="120"
+        />
+        <el-table-column align="left" label="年份" prop="year" width="120" />
+        <el-table-column
+          align="left"
+          label="是否发布"
+          prop="publish"
+          width="120"
+        >
+          <template #default="scope">{{
+            formatBoolean(scope.row.publish)
+          }}</template>
         </el-table-column>
         <el-table-column align="left" label="按钮组">
           <template #default="scope">
@@ -71,8 +113,17 @@
               size="small"
               class="table-button"
               @click="updateCompetitionScheFunc(scope.row)"
-            >变更</el-button>
-            <el-button type="text" icon="delete" size="small" @click="deleteRow(scope.row)">删除</el-button>
+            >
+              变更
+            </el-button>
+            <el-button
+              type="text"
+              icon="delete"
+              size="small"
+              @click="deleteRow(scope.row)"
+            >
+              删除
+            </el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -88,29 +139,31 @@
         />
       </div>
     </div>
-    <el-dialog v-model="dialogFormVisible" :before-close="closeDialog" title="弹窗操作">
+    <el-dialog
+      v-model="dialogFormVisible"
+      :before-close="closeDialog"
+      title="弹窗操作"
+    >
       <el-form :model="formData" label-position="right" label-width="80px">
-        <!-- <el-form-item label="竞赛编号:">
-          <el-input v-model.number="formData.cId" clearable placeholder="请输入" />
-        </el-form-item>-->
-        <el-form-item label="竞赛级别:">
-          <el-select v-model="formData.level" placeholder="请选择" style="width:100%" clearable>
-            <el-option
-              v-for="(item, key) in competitionLevelOptions"
-              :key="key"
-              :label="item.label"
-              :value="item.value"
-            />
-          </el-select>
+        <el-form-item label="竞赛编号:">
+          <el-input
+            v-model.number="formData.cId"
+            clearable
+            placeholder="请输入"
+          />
         </el-form-item>
         <el-form-item label="比赛的届数:">
-          <el-input v-model.number="formData.version" clearable placeholder="请输入" />
+          <el-input
+            v-model.number="formData.version"
+            clearable
+            placeholder="请输入"
+          />
         </el-form-item>
         <el-form-item label="报名开始日期:">
           <el-date-picker
             v-model="formData.startTime"
             type="date"
-            style="width:100%"
+            style="width: 100%"
             placeholder="选择日期"
             clearable
           />
@@ -119,26 +172,25 @@
           <el-date-picker
             v-model="formData.endTime"
             type="date"
-            style="width:100%"
+            style="width: 100%"
             placeholder="选择日期"
             clearable
           />
         </el-form-item>
-        <el-form-item label="比赛开始时间:">
-          <el-date-picker
-            v-model="formData.rStartTime"
-            type="date"
-            style="width:100%"
-            placeholder="选择日期"
+        <el-form-item label="年份:">
+          <el-input
+            v-model.number="formData.year"
             clearable
+            placeholder="请输入"
           />
         </el-form-item>
-        <el-form-item label="比赛结束时间:">
-          <el-date-picker
-            v-model="formData.rEndTime"
-            type="date"
-            style="width:100%"
-            placeholder="选择日期"
+        <el-form-item label="是否发布:">
+          <el-switch
+            v-model="formData.publish"
+            active-color="#13ce66"
+            inactive-color="#ff4949"
+            active-text="是"
+            inactive-text="否"
             clearable
           />
         </el-form-item>
@@ -146,7 +198,9 @@
       <template #footer>
         <div class="dialog-footer">
           <el-button size="small" @click="closeDialog">取 消</el-button>
-          <el-button size="small" type="primary" @click="enterDialog">确 定</el-button>
+          <el-button size="small" type="primary" @click="enterDialog">
+            确 定
+          </el-button>
         </div>
       </template>
     </el-dialog>
@@ -155,7 +209,7 @@
 
 <script>
 export default {
-  name: 'CompetitionSche'
+  name: 'CompetitionSche',
 }
 </script>
 
@@ -166,25 +220,27 @@ import {
   deleteCompetitionScheByIds,
   updateCompetitionSche,
   findCompetitionSche,
-  getCompetitionScheList
+  getCompetitionScheList,
 } from '@/api/competitionSche'
 
 // 全量引入格式化工具 请按需保留
-import { getDictFunc, formatDate, filterDict } from '@/utils/format'
+import {
+  // getDictFunc,
+  formatDate,
+  formatBoolean,
+  // filterDict,
+} from '@/utils/format'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { ref } from 'vue'
-import { useRoute } from 'vue-router'
-const route = useRoute()
+
 // 自动化生成的字典（可能为空）以及字段
-const competitionLevelOptions = ref([])
 const formData = ref({
-  cId: +route.query.cId,
-  level: undefined,
+  cId: 0,
   version: 0,
   startTime: new Date(),
   endTime: new Date(),
-  rStartTime: new Date(),
-  rEndTime: new Date(),
+  year: 0,
+  publish: false,
 })
 
 // =========== 表格控制部分 ===========
@@ -203,6 +259,9 @@ const onReset = () => {
 const onSubmit = () => {
   page.value = 1
   pageSize.value = 10
+  if (searchInfo.value.publish === '') {
+    searchInfo.value.publish = null
+  }
   getTableData()
 }
 
@@ -220,7 +279,11 @@ const handleCurrentChange = (val) => {
 
 // 查询
 const getTableData = async () => {
-  const table = await getCompetitionScheList({ page: page.value, pageSize: pageSize.value, ...searchInfo.value, cId: route.query.cId })
+  const table = await getCompetitionScheList({
+    page: page.value,
+    pageSize: pageSize.value,
+    ...searchInfo.value,
+  })
   if (table.code === 0) {
     tableData.value = table.data.list
     total.value = table.data.total
@@ -234,9 +297,7 @@ getTableData()
 // ============== 表格控制部分结束 ===============
 
 // 获取需要的字典 可能为空 按需保留
-const setOptions = async () => {
-  competitionLevelOptions.value = await getDictFunc('competitionLevel')
-}
+const setOptions = async () => {}
 
 // 获取需要的字典 可能为空 按需保留
 setOptions()
@@ -253,7 +314,7 @@ const deleteRow = (row) => {
   ElMessageBox.confirm('确定要删除吗?', '提示', {
     confirmButtonText: '确定',
     cancelButtonText: '取消',
-    type: 'warning'
+    type: 'warning',
   }).then(() => {
     deleteCompetitionScheFunc(row)
   })
@@ -268,19 +329,19 @@ const onDelete = async () => {
   if (multipleSelection.value.length === 0) {
     ElMessage({
       type: 'warning',
-      message: '请选择要删除的数据'
+      message: '请选择要删除的数据',
     })
     return
   }
   multipleSelection.value &&
-    multipleSelection.value.map(item => {
+    multipleSelection.value.map((item) => {
       ids.push(item.ID)
     })
   const res = await deleteCompetitionScheByIds({ ids })
   if (res.code === 0) {
     ElMessage({
       type: 'success',
-      message: '删除成功'
+      message: '删除成功',
     })
     if (tableData.value.length === ids.length && page.value > 1) {
       page.value--
@@ -309,7 +370,7 @@ const deleteCompetitionScheFunc = async (row) => {
   if (res.code === 0) {
     ElMessage({
       type: 'success',
-      message: '删除成功'
+      message: '删除成功',
     })
     if (tableData.value.length === 1 && page.value > 1) {
       page.value--
@@ -331,21 +392,17 @@ const openDialog = () => {
 const closeDialog = () => {
   dialogFormVisible.value = false
   formData.value = {
-    cId: +route.query.cId,
-    level: undefined,
+    cId: 0,
     version: 0,
     startTime: new Date(),
     endTime: new Date(),
-    rStartTime: new Date(),
-    rEndTime: new Date(),
+    year: 0,
+    publish: false,
   }
 }
 // 弹窗确定
 const enterDialog = async () => {
   let res
-  formData.value.cId = +route.query.cId
-  console.log('%c 🥒 route.query.cId: ', 'font-size:20px;background-color: #E41A6A;color:#fff;', route.query.cId)
-
   switch (type.value) {
     case 'create':
       res = await createCompetitionSche(formData.value)
@@ -360,7 +417,7 @@ const enterDialog = async () => {
   if (res.code === 0) {
     ElMessage({
       type: 'success',
-      message: '创建/更改成功'
+      message: '创建/更改成功',
     })
     closeDialog()
     getTableData()
@@ -368,5 +425,4 @@ const enterDialog = async () => {
 }
 </script>
 
-<style>
-</style>
+<style></style>

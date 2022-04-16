@@ -6,28 +6,45 @@
           <el-input v-model="searchInfo.name" placeholder="搜索条件" />
         </el-form-item>
         <el-form-item>
-          <el-button size="small" type="primary" icon="search" @click="onSubmit">查询</el-button>
-          <el-button size="small" icon="refresh" @click="onReset">重置</el-button>
+          <el-button
+            size="small"
+            type="primary"
+            icon="search"
+            @click="onSubmit"
+          >
+            查询
+          </el-button>
+          <el-button size="small" icon="refresh" @click="onReset">
+            重置
+          </el-button>
         </el-form-item>
       </el-form>
     </div>
     <div class="gva-table-box">
       <div class="gva-btn-list">
-        <el-button size="small" type="primary" icon="plus" @click="openDialog">新增</el-button>
+        <el-button size="small" type="primary" icon="plus" @click="openDialog">
+          新增
+        </el-button>
         <el-popover v-model:visible="deleteVisible" placement="top" width="160">
           <p>确定要删除吗？</p>
-          <div style="text-align: right; margin-top: 8px;">
-            <el-button size="small" type="text" @click="deleteVisible = false">取消</el-button>
-            <el-button size="small" type="primary" @click="onDelete">确定</el-button>
+          <div style="text-align: right; margin-top: 8px">
+            <el-button size="small" type="text" @click="deleteVisible = false">
+              取消
+            </el-button>
+            <el-button size="small" type="primary" @click="onDelete">
+              确定
+            </el-button>
           </div>
           <template #reference>
             <el-button
               icon="delete"
               size="small"
-              style="margin-left: 10px;"
+              style="margin-left: 10px"
               :disabled="!multipleSelection.length"
               @click="deleteVisible = true"
-            >删除</el-button>
+            >
+              删除
+            </el-button>
           </template>
         </el-popover>
       </div>
@@ -41,9 +58,16 @@
       >
         <el-table-column type="selection" width="55" />
         <el-table-column align="left" label="日期" width="180">
-          <template #default="scope">{{ formatDate(scope.row.CreatedAt) }}</template>
+          <template #default="scope">{{
+            formatDate(scope.row.CreatedAt)
+          }}</template>
         </el-table-column>
-        <el-table-column align="left" label="团队名称" prop="name" width="120" />
+        <el-table-column
+          align="left"
+          label="团队名称"
+          prop="name"
+          width="120"
+        />
         <el-table-column align="left" label="注册公司" width="120">
           <template #default="scope">
             <el-button
@@ -51,18 +75,44 @@
               size="small"
               class="table-button"
               @click="goCompany(scope.row)"
-            >{{ scope.row.companyId == 0 ? "创建公司" : "查看公司" }}</el-button>
+            >
+              {{ scope.row.companyId == 0 ? '创建公司' : '查看公司' }}
+            </el-button>
           </template>
         </el-table-column>
-        <el-table-column align="left" label="团队介绍" prop="introduction" width="120" />
-        <el-table-column align="left" label="知识产权" prop="intellectualProperty" width="120" />
+        <el-table-column align="left" label="负责人" prop="uId" width="120">
+          <template #default="scope">
+            <el-button
+              type="text"
+              size="small"
+              class="table-button"
+              @click="goUser(scope.row)"
+            >
+              查看负责人
+            </el-button>
+          </template>
+        </el-table-column>
+        <el-table-column
+          align="left"
+          label="团队介绍"
+          prop="introduction"
+          width="120"
+        />
+        <el-table-column
+          align="left"
+          label="知识产权"
+          prop="intellectualProperty"
+          width="120"
+        />
         <el-table-column align="left" label="备注" prop="remark" width="120" />
         <el-table-column align="left" label="审核" prop="check" width="120">
           <template #default="scope">
             <el-tag
               class="ml-2"
               :type="ChooseTagType(scope.row.check, checkOptions)"
-            >{{ filterDict(scope.row.check, checkOptions) }}</el-tag>
+            >
+              {{ filterDict(scope.row.check, checkOptions) }}
+            </el-tag>
           </template>
         </el-table-column>
         <el-table-column align="left" label="按钮组">
@@ -73,9 +123,25 @@
               size="small"
               class="table-button"
               @click="updateTeamInfoFunc(scope.row)"
-            >变更</el-button>
-            <el-button type="text" icon="delete" size="small" @click="deleteRow(scope.row)">删除</el-button>
-            <el-button type="text" icon="view" size="small" @click="goTeamMember(scope.row)">人员详情</el-button>
+            >
+              变更
+            </el-button>
+            <el-button
+              type="text"
+              icon="delete"
+              size="small"
+              @click="deleteRow(scope.row)"
+            >
+              删除
+            </el-button>
+            <!-- <el-button
+              type="text"
+              icon="view"
+              size="small"
+              @click="goTeamMember(scope.row)"
+            >
+              人员详情
+            </el-button> -->
           </template>
         </el-table-column>
       </el-table>
@@ -91,25 +157,46 @@
         />
       </div>
     </div>
-    <el-dialog v-model="dialogFormVisible" :before-close="closeDialog" title="弹窗操作">
+    <el-dialog
+      v-model="dialogFormVisible"
+      :before-close="closeDialog"
+      title="弹窗操作"
+    >
       <el-form :model="formData" label-position="right" label-width="80px">
         <el-form-item label="团队名称:">
           <el-input v-model="formData.name" clearable placeholder="请输入" />
         </el-form-item>
         <el-form-item label="注册公司:">
-          <el-input v-model.number="formData.companyId" clearable placeholder="请输入" />
+          <el-input
+            v-model.number="formData.companyId"
+            clearable
+            placeholder="请输入"
+          />
         </el-form-item>
         <el-form-item label="团队介绍:">
-          <el-input v-model="formData.introduction" clearable placeholder="请输入" />
+          <el-input
+            v-model="formData.introduction"
+            clearable
+            placeholder="请输入"
+          />
         </el-form-item>
         <el-form-item label="知识产权:">
-          <el-input v-model="formData.intellectualProperty" clearable placeholder="请输入" />
+          <el-input
+            v-model="formData.intellectualProperty"
+            clearable
+            placeholder="请输入"
+          />
         </el-form-item>
         <el-form-item label="备注:">
           <el-input v-model="formData.remark" clearable placeholder="请输入" />
         </el-form-item>
         <el-form-item label="审核:">
-          <el-select v-model="formData.check" placeholder="请选择" style="width:100%" clearable>
+          <el-select
+            v-model="formData.check"
+            placeholder="请选择"
+            style="width: 100%"
+            clearable
+          >
             <el-option
               v-for="(item, key) in checkOptions"
               :key="key"
@@ -122,7 +209,9 @@
       <template #footer>
         <div class="dialog-footer">
           <el-button size="small" @click="closeDialog">取 消</el-button>
-          <el-button size="small" type="primary" @click="enterDialog">确 定</el-button>
+          <el-button size="small" type="primary" @click="enterDialog">
+            确 定
+          </el-button>
         </div>
       </template>
     </el-dialog>
@@ -131,7 +220,7 @@
 
 <script>
 export default {
-  name: 'TeamInfo'
+  name: 'TeamInfo',
 }
 </script>
 
@@ -143,7 +232,7 @@ import {
   deleteTeamInfoByIds,
   updateTeamInfo,
   findTeamInfo,
-  getTeamInfoList
+  getTeamInfoList,
 } from '@/api/teamInfo'
 
 // 全量引入格式化工具 请按需保留
@@ -196,7 +285,11 @@ const handleCurrentChange = (val) => {
 
 // 查询
 const getTableData = async () => {
-  const table = await getTeamInfoList({ page: page.value, pageSize: pageSize.value, ...searchInfo.value })
+  const table = await getTeamInfoList({
+    page: page.value,
+    pageSize: pageSize.value,
+    ...searchInfo.value,
+  })
   if (table.code === 0) {
     tableData.value = table.data.list
     total.value = table.data.total
@@ -229,7 +322,7 @@ const deleteRow = (row) => {
   ElMessageBox.confirm('确定要删除吗?', '提示', {
     confirmButtonText: '确定',
     cancelButtonText: '取消',
-    type: 'warning'
+    type: 'warning',
   }).then(() => {
     deleteTeamInfoFunc(row)
   })
@@ -244,19 +337,19 @@ const onDelete = async () => {
   if (multipleSelection.value.length === 0) {
     ElMessage({
       type: 'warning',
-      message: '请选择要删除的数据'
+      message: '请选择要删除的数据',
     })
     return
   }
   multipleSelection.value &&
-    multipleSelection.value.map(item => {
+    multipleSelection.value.map((item) => {
       ids.push(item.ID)
     })
   const res = await deleteTeamInfoByIds({ ids })
   if (res.code === 0) {
     ElMessage({
       type: 'success',
-      message: '删除成功'
+      message: '删除成功',
     })
     if (tableData.value.length === ids.length && page.value > 1) {
       page.value--
@@ -285,7 +378,7 @@ const deleteTeamInfoFunc = async (row) => {
   if (res.code === 0) {
     ElMessage({
       type: 'success',
-      message: '删除成功'
+      message: '删除成功',
     })
     if (tableData.value.length === 1 && page.value > 1) {
       page.value--
@@ -332,7 +425,7 @@ const enterDialog = async () => {
   if (res.code === 0) {
     ElMessage({
       type: 'success',
-      message: '创建/更改成功'
+      message: '创建/更改成功',
     })
     closeDialog()
     getTableData()
@@ -344,12 +437,11 @@ const goCompany = async (param) => {
     router.push({ name: 'companyInfo' })
     return
   }
-  router.push({ name: 'companyInfo', query: { 'id': param.companyId } })
+  router.push({ name: 'companyInfo', query: { id: param.companyId } })
 }
-const goTeamMember = async (param) => {
-  router.push({ name: 'teamMember', query: { 'teamId': param.ID } })
+const goUser = async (param) => {
+  router.push({ name: 'studentInfoForm', query: { id: param.uId } })
 }
 </script>
 
-<style>
-</style>
+<style></style>

@@ -62,12 +62,6 @@ func (entryFormService *EntryFormService) GetEntryFormInfoList(info autoCodeReq.
 	if info.CmpId != nil {
 		db = db.Where("cmp_id = ?", info.CmpId)
 	}
-	if info.Rank != nil {
-		db = db.Where("rank = ?", info.Rank)
-	}
-	if info.AchName != "" {
-		db = db.Where("ach_name LIKE ?", "%"+info.AchName+"%")
-	}
 	err = db.Count(&total).Error
 	if err != nil {
 		return

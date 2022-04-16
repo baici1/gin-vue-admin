@@ -10,6 +10,7 @@ import (
 type TeamInfo struct {
 	global.GVA_MODEL
 	Name                 string `json:"name" form:"name" gorm:"column:name;comment:团队名称;size:255;"`
+	UId                  *int   `json:"uId" form:"uId" gorm:"column:u_id;comment:负责人;size:10;"`
 	CompanyId            *int   `json:"companyId" form:"companyId" gorm:"column:company_id;comment:注册公司,0表示未注册;size:10;" default:"0"`
 	Introduction         string `json:"introduction" form:"introduction" gorm:"column:introduction;comment:团队介绍;size:255;"`
 	IntellectualProperty string `json:"intellectualProperty" form:"intellectualProperty" gorm:"column:intellectual_property;comment:知识产权;size:255;"`

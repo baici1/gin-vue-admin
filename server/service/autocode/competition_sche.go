@@ -53,10 +53,6 @@ func (competitionScheService *CompetitionScheService) GetCompetitionScheInfoList
 	// 创建db
 	db := global.GVA_DB.Model(&autocode.CompetitionSche{})
 	var competitionSches []autocode.CompetitionSche
-	// 如果有条件搜索 下方会自动创建搜索语句
-	if info.Level != nil {
-		db = db.Where("level = ?", info.Level)
-	}
 	if info.Version != nil {
 		db = db.Where("version = ?", info.Version)
 	}
@@ -79,26 +75,6 @@ func (competitionScheService *CompetitionScheService) GetCompetitionScheDetailLi
 	var competitionSches []autocode.CompetitionSche
 	db = db.Joins("left join competition_info on competition_sche.c_id=competition_info.id")
 	//可加条件
-	//报名未开始
-	if info.Status == 1 {
-		db = db.Where("competition_sche.start_time > now() ")
-	}
-	//报名种
-	if info.Status == 2 {
-		db = db.Where("competition_sche.start_time < now() and competition_sche.end_time > now() ")
-	}
-	//准备种
-	if info.Status == 3 {
-		db = db.Where("competition_sche.end_time < now() and now() < competition_sche.r_start_time   ")
-	}
-	//比赛进行种
-	if info.Status == 4 {
-		db = db.Where("competition_sche.r_start_time < now() and now() < competition_sche.r_end_time ")
-	}
-	//比赛结束
-	if info.Status == 5 {
-		db = db.Where("competition_sche.r_end_time < now() ")
-	}
 	db = db.Where("competition_info.c_name like ?", "%"+info.SearchInfo+"%")
 	err = db.Limit(limit).Offset(offset).Preload("BaseInfo", "c_name like ?", "%"+info.SearchInfo+"%").Find(&competitionSches).Error
 	err = db.Count(&total).Error

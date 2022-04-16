@@ -8,35 +8,46 @@
         <el-form-item label="竞赛编号">
           <el-input v-model="searchInfo.cmpId" placeholder="搜索条件" />
         </el-form-item>
-        <el-form-item label="获奖级别">
-          <el-input v-model="searchInfo.rank" placeholder="搜索条件" />
-        </el-form-item>
-        <el-form-item label="获奖名称">
-          <el-input v-model="searchInfo.achName" placeholder="搜索条件" />
-        </el-form-item>
         <el-form-item>
-          <el-button size="small" type="primary" icon="search" @click="onSubmit">查询</el-button>
-          <el-button size="small" icon="refresh" @click="onReset">重置</el-button>
+          <el-button
+            size="small"
+            type="primary"
+            icon="search"
+            @click="onSubmit"
+          >
+            查询
+          </el-button>
+          <el-button size="small" icon="refresh" @click="onReset">
+            重置
+          </el-button>
         </el-form-item>
       </el-form>
     </div>
     <div class="gva-table-box">
       <div class="gva-btn-list">
-        <el-button size="small" type="primary" icon="plus" @click="openDialog">新增</el-button>
+        <el-button size="small" type="primary" icon="plus" @click="openDialog">
+          新增
+        </el-button>
         <el-popover v-model:visible="deleteVisible" placement="top" width="160">
           <p>确定要删除吗？</p>
-          <div style="text-align: right; margin-top: 8px;">
-            <el-button size="small" type="text" @click="deleteVisible = false">取消</el-button>
-            <el-button size="small" type="primary" @click="onDelete">确定</el-button>
+          <div style="text-align: right; margin-top: 8px">
+            <el-button size="small" type="text" @click="deleteVisible = false">
+              取消
+            </el-button>
+            <el-button size="small" type="primary" @click="onDelete">
+              确定
+            </el-button>
           </div>
           <template #reference>
             <el-button
               icon="delete"
               size="small"
-              style="margin-left: 10px;"
+              style="margin-left: 10px"
               :disabled="!multipleSelection.length"
               @click="deleteVisible = true"
-            >删除</el-button>
+            >
+              删除
+            </el-button>
           </template>
         </el-popover>
       </div>
@@ -50,10 +61,22 @@
       >
         <el-table-column type="selection" width="55" />
         <el-table-column align="left" label="日期" width="180">
-          <template #default="scope">{{ formatDate(scope.row.CreatedAt) }}</template>
+          <template #default="scope">{{
+            formatDate(scope.row.CreatedAt)
+          }}</template>
         </el-table-column>
-        <el-table-column align="left" label="参赛表名" prop="name" width="120" />
-        <el-table-column align="left" label="竞赛编号" prop="cmpId" width="120" />
+        <el-table-column
+          align="left"
+          label="参赛表名"
+          prop="name"
+          width="120"
+        />
+        <el-table-column
+          align="left"
+          label="竞赛编号"
+          prop="cmpId"
+          width="120"
+        />
         <el-table-column align="left" label="项目编号" prop="pId" width="120">
           <template #default="scope">
             <el-button
@@ -62,18 +85,12 @@
               class="table-button"
               @click="goEntryProject(scope.row)"
             >
-              {{
-                scope.row.pId
-                  == 0 ? "创建项目" : "查看项目"
-              }}
+              {{ scope.row.pId == 0 ? '创建项目' : '查看项目' }}
             </el-button>
           </template>
         </el-table-column>
-        <el-table-column align="left" label="获奖级别" prop="rank" width="120">
-          <template #default="scope">{{ filterDict(scope.row.rank, awardOptions) }}</template>
-        </el-table-column>
-        <el-table-column align="left" label="获奖名称" prop="achName" width="120" />
-        <el-table-column align="left" label="按钮组">
+
+        <el-table-column align="left" label="按钮组" width="240">
           <template #default="scope">
             <el-button
               type="text"
@@ -81,9 +98,25 @@
               size="small"
               class="table-button"
               @click="updateEntryFormFunc(scope.row)"
-            >变更</el-button>
-            <el-button type="text" icon="delete" size="small" @click="deleteRow(scope.row)">删除</el-button>
-            <el-button type="text" icon="view" size="small" @click="goEntryMember(scope.row)">人员详情</el-button>
+            >
+              变更
+            </el-button>
+            <el-button
+              type="text"
+              icon="delete"
+              size="small"
+              @click="deleteRow(scope.row)"
+            >
+              删除
+            </el-button>
+            <el-button
+              type="text"
+              icon="view"
+              size="small"
+              @click="goEntryMember(scope.row)"
+            >
+              人员详情
+            </el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -99,44 +132,46 @@
         />
       </div>
     </div>
-    <el-dialog v-model="dialogFormVisible" :before-close="closeDialog" title="弹窗操作">
+    <el-dialog
+      v-model="dialogFormVisible"
+      :before-close="closeDialog"
+      title="弹窗操作"
+    >
       <el-form :model="formData" label-position="right" label-width="80px">
         <el-form-item label="参赛表名:">
           <el-input v-model="formData.name" clearable placeholder="请输入" />
         </el-form-item>
         <el-form-item label="竞赛编号:">
-          <el-input v-model.number="formData.cmpId" clearable placeholder="请输入" />
+          <el-input
+            v-model.number="formData.cmpId"
+            clearable
+            placeholder="请输入"
+          />
         </el-form-item>
         <el-form-item label="项目编号:">
-          <el-input v-model.number="formData.pId" clearable placeholder="请输入" />
+          <el-input
+            v-model.number="formData.pId"
+            clearable
+            placeholder="请输入"
+          />
         </el-form-item>
-        <el-form-item label="获奖级别:">
-          <el-select v-model="formData.rank" placeholder="请选择" style="width:100%" clearable>
-            <el-option
-              v-for="(item, key) in awardOptions"
-              :key="key"
-              :label="item.label"
-              :value="item.value"
-            />
-          </el-select>
-        </el-form-item>
-        <el-form-item label="获奖名称:">
-          <el-input v-model="formData.achName" clearable placeholder="请输入" />
-        </el-form-item>
+
+        <template #footer>
+          <div class="dialog-footer">
+            <el-button size="small" @click="closeDialog">取 消</el-button>
+            <el-button size="small" type="primary" @click="enterDialog">
+              确 定
+            </el-button>
+          </div>
+        </template>
       </el-form>
-      <template #footer>
-        <div class="dialog-footer">
-          <el-button size="small" @click="closeDialog">取 消</el-button>
-          <el-button size="small" type="primary" @click="enterDialog">确 定</el-button>
-        </div>
-      </template>
     </el-dialog>
   </div>
 </template>
 
 <script>
 export default {
-  name: 'EntryForm'
+  name: 'EntryForm',
 }
 </script>
 
@@ -147,11 +182,11 @@ import {
   deleteEntryFormByIds,
   updateEntryForm,
   findEntryForm,
-  getEntryFormList
+  getEntryFormList,
 } from '@/api/entryForm'
 
 // 全量引入格式化工具 请按需保留
-import { getDictFunc, formatDate, filterDict } from '@/utils/format'
+import { getDictFunc, formatDate } from '@/utils/format'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
@@ -199,7 +234,11 @@ const handleCurrentChange = (val) => {
 
 // 查询
 const getTableData = async () => {
-  const table = await getEntryFormList({ page: page.value, pageSize: pageSize.value, ...searchInfo.value })
+  const table = await getEntryFormList({
+    page: page.value,
+    pageSize: pageSize.value,
+    ...searchInfo.value,
+  })
   if (table.code === 0) {
     tableData.value = table.data.list
     total.value = table.data.total
@@ -232,7 +271,7 @@ const deleteRow = (row) => {
   ElMessageBox.confirm('确定要删除吗?', '提示', {
     confirmButtonText: '确定',
     cancelButtonText: '取消',
-    type: 'warning'
+    type: 'warning',
   }).then(() => {
     deleteEntryFormFunc(row)
   })
@@ -247,19 +286,19 @@ const onDelete = async () => {
   if (multipleSelection.value.length === 0) {
     ElMessage({
       type: 'warning',
-      message: '请选择要删除的数据'
+      message: '请选择要删除的数据',
     })
     return
   }
   multipleSelection.value &&
-    multipleSelection.value.map(item => {
+    multipleSelection.value.map((item) => {
       ids.push(item.ID)
     })
   const res = await deleteEntryFormByIds({ ids })
   if (res.code === 0) {
     ElMessage({
       type: 'success',
-      message: '删除成功'
+      message: '删除成功',
     })
     if (tableData.value.length === ids.length && page.value > 1) {
       page.value--
@@ -288,7 +327,7 @@ const deleteEntryFormFunc = async (row) => {
   if (res.code === 0) {
     ElMessage({
       type: 'success',
-      message: '删除成功'
+      message: '删除成功',
     })
     if (tableData.value.length === 1 && page.value > 1) {
       page.value--
@@ -334,7 +373,7 @@ const enterDialog = async () => {
   if (res.code === 0) {
     ElMessage({
       type: 'success',
-      message: '创建/更改成功'
+      message: '创建/更改成功',
     })
     closeDialog()
     getTableData()
@@ -347,12 +386,11 @@ const goEntryProject = async (param) => {
     router.push({ name: 'projectInfo' })
     return
   }
-  router.push({ name: 'projectInfo', query: { 'id': param.pId } })
+  router.push({ name: 'projectInfo', query: { id: param.pId } })
 }
 const goEntryMember = async (param) => {
-  router.push({ name: 'entryMember', query: { 'formId': param.ID } })
+  router.push({ name: 'entryMember', query: { formId: param.ID } })
 }
 </script>
 
-<style>
-</style>
+<style></style>
