@@ -87,6 +87,11 @@ func (s *NoAuthRouter) InitNoAuthRouter(Router *gin.RouterGroup) {
 		{
 			sysDictionaryRouter.GET("findSysDictionary", sysDictionaryApi.FindSysDictionary) // 根据ID获取SysDictionary
 		}
+		studentRecruitRouter := NoAuthRouterWithoutRecord.Group("studentRecruit")
+		var studentRecruitApi = v1.ApiGroupApp.AutoCodeApiGroup.StudentRecruitApi
+		{
+			studentRecruitRouter.POST("send", studentRecruitApi.ProduceStudentRecruitInfomation) // 根据ID获取StudentRecruit
+		}
 	}
 
 }

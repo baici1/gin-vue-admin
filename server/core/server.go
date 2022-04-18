@@ -3,6 +3,7 @@ package core
 import (
 	"fmt"
 	"github.com/flipped-aurora/gin-vue-admin/server/utils"
+	"github.com/flipped-aurora/gin-vue-admin/server/utils/rabbitmq"
 	"time"
 
 	"github.com/flipped-aurora/gin-vue-admin/server/global"
@@ -39,9 +40,10 @@ func RunWindowsServer() {
 	// In order to ensure that the text order output can be deleted
 	time.Sleep(10 * time.Microsecond)
 	global.GVA_LOG.Info("server run success on ", zap.String("address", address))
-
 	fmt.Printf(`
 	GVA讨论社区:https://support.qq.com/products/371961
 	`)
+	//启动rabbitmq服务处理消息
+	go rabbitmq.CreateRabbitMqFactory().StartHandleMsgByHelloWorld()
 	global.GVA_LOG.Error(s.ListenAndServe().Error())
 }

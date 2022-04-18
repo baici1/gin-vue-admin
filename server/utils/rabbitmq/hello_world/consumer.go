@@ -52,7 +52,7 @@ type consumer struct {
 }
 
 // Received 接收、处理消息
-func (c *consumer) Received(callbackFunDealSmg func(receivedData string), recevier string) {
+func (c *consumer) Received(callbackFunDealSmg func(receivedData string)) {
 	defer func() {
 		c.close()
 	}()
@@ -82,11 +82,11 @@ func (c *consumer) Received(callbackFunDealSmg func(receivedData string), recevi
 			}
 			msgs, err := ch.Consume(
 				queue.Name,
-				recevier, //  消费者标记，请确保在一个消息通道唯一
-				true,     //是否自动确认，这里设置为 true，自动确认
-				false,    //是否私有队列，false标识允许多个 consumer 向该队列投递消息，true 表示独占
-				false,    //RabbitMQ不支持noLocal标志。
-				false,    // 队列如果已经在服务器声明，设置为 true ，否则设置为 false；
+				"",    //  消费者标记，请确保在一个消息通道唯一
+				true,  //是否自动确认，这里设置为 true，自动确认
+				false, //是否私有队列，false标识允许多个 consumer 向该队列投递消息，true 表示独占
+				false, //RabbitMQ不支持noLocal标志。
+				false, // 队列如果已经在服务器声明，设置为 true ，否则设置为 false；
 				nil,
 			)
 			c.occurError = error_record.ErrorDeal(err)
@@ -121,7 +121,7 @@ func (c *consumer) Received(callbackFunDealSmg func(receivedData string), recevi
 }
 
 //OnConnectionError 消费者端，掉线重连监听器
-func (c *consumer) OnConnectionError(callbackOfflineErr func(err *amqp.Error), recevier string) {
+func (c *consumer) OnConnectionError(callbackOfflineErr func(err *amqp.Error)) {
 	c.callbackOffLine = callbackOfflineErr
 	go func() {
 		select {
@@ -140,8 +140,8 @@ func (c *consumer) OnConnectionError(callbackOfflineErr func(err *amqp.Error), r
 				} else {
 					go func() {
 						c.connErr = conn.connect.NotifyClose(make(chan *amqp.Error, 1))
-						go conn.OnConnectionError(c.callbackOffLine, recevier)
-						conn.Received(c.callbackForReceived, recevier)
+						go conn.OnConnectionError(c.callbackOffLine)
+						conn.Received(c.callbackForReceived)
 					}()
 					// 新的客户端重连成功后，释放旧的回调函数 - OnConnectionError
 					if c.status == 0 {

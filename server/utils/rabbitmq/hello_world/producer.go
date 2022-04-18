@@ -34,7 +34,7 @@ type producer struct {
 	occurError error
 }
 
-func (p *producer) Send(data string, sender string) bool {
+func (p *producer) Send(data []byte) bool {
 
 	// 获取一个通道
 	ch, err := p.connect.Channel()
@@ -63,14 +63,14 @@ func (p *producer) Send(data string, sender string) bool {
 	// 投递消息
 	if err == nil {
 		err = ch.Publish(
-			sender,      // helloworld 、workqueue 模式设置为空字符串，表示使用默认交换机
+			"",          // helloworld 、workqueue 模式设置为空字符串，表示使用默认交换机
 			p.queueName, //  routing key，注意：简单模式与队列名称相同
 			false,
 			false,
 			amqp.Publishing{
 				DeliveryMode: msgPersistent, //消息是否持久化，这里与保持保持一致即可
 				ContentType:  "text/plain",
-				Body:         []byte(data),
+				Body:         data,
 			})
 	}
 	p.occurError = error_record.ErrorDeal(err)
