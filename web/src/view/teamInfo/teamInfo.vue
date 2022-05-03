@@ -74,7 +74,7 @@
               type="text"
               size="small"
               class="table-button"
-              @click="goCompany(scope.row)"
+              @click="openDialogCompany(scope.row)"
             >
               {{ scope.row.companyId == 0 ? '创建公司' : '查看公司' }}
             </el-button>
@@ -86,7 +86,7 @@
               type="text"
               size="small"
               class="table-button"
-              @click="goUser(scope.row)"
+              @click="openDialogStudent(scope.row)"
             >
               查看负责人
             </el-button>
@@ -215,6 +215,222 @@
         </div>
       </template>
     </el-dialog>
+    <!-- 公司弹框 -->
+    <el-dialog
+      v-model="dialogFormVisibleCompany"
+      :before-close="closeDialogCompany"
+      title="弹窗操作"
+    >
+      <el-form
+        :model="formDataCompany"
+        label-position="right"
+        label-width="80px"
+      >
+        <el-form-item label="公司名称:">
+          <el-input
+            v-model="formDataCompany.name"
+            clearable
+            placeholder="请输入"
+          />
+        </el-form-item>
+        <el-form-item label="公司地址:">
+          <el-input
+            v-model="formDataCompany.address"
+            clearable
+            placeholder="请输入"
+          />
+        </el-form-item>
+        <el-form-item label="公司介绍:">
+          <el-input
+            v-model="formDataCompany.introduction"
+            clearable
+            placeholder="请输入"
+          />
+        </el-form-item>
+        <el-form-item label="审核:">
+          <el-select
+            v-model="formDataCompany.check"
+            placeholder="请选择"
+            style="width: 100%"
+            clearable
+          >
+            <el-option
+              v-for="(item, key) in checkOptions"
+              :key="key"
+              :label="item.label"
+              :value="item.value"
+            />
+          </el-select>
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <div class="dialog-footer">
+          <el-button size="small" @click="closeDialogCompany">取 消</el-button>
+          <el-button size="small" type="primary" @click="enterDialogCompany">
+            确 定
+          </el-button>
+        </div>
+      </template>
+    </el-dialog>
+    <!-- 学生弹框 -->
+    <el-dialog
+      v-model="dialogFormVisibleStudent"
+      :before-close="closeDialogStudent"
+      title="弹窗操作"
+    >
+      <el-form
+        :model="formDataStudent"
+        label-position="right"
+        label-width="80px"
+      >
+        <el-form-item label="学号:">
+          <el-input
+            v-model="formDataStudent.studentId"
+            clearable
+            placeholder="请输入"
+          />
+        </el-form-item>
+        <el-form-item label="手机号:">
+          <el-input
+            v-model="formDataStudent.phone"
+            clearable
+            placeholder="请输入"
+          />
+        </el-form-item>
+        <el-form-item label="用户身份:">
+          <el-input
+            v-model="formDataStudent.authorityId"
+            clearable
+            placeholder="请输入"
+          />
+        </el-form-item>
+        <el-form-item label="昵称:">
+          <el-input
+            v-model="formDataStudent.nickname"
+            clearable
+            placeholder="请输入"
+          />
+        </el-form-item>
+        <el-form-item label="邮箱:">
+          <el-input
+            v-model="formDataStudent.email"
+            clearable
+            placeholder="请输入"
+          />
+        </el-form-item>
+        <el-form-item label="头像:">
+          <el-input
+            v-model="formDataStudent.avatar"
+            clearable
+            placeholder="请输入"
+          />
+        </el-form-item>
+        <el-form-item label="姓名:">
+          <el-input
+            v-model="formDataStudent.realName"
+            clearable
+            placeholder="请输入"
+          />
+        </el-form-item>
+        <el-form-item label="性别:">
+          <el-select
+            v-model="formDataStudent.gender"
+            placeholder="请选择"
+            style="width: 100%"
+            clearable
+          >
+            <el-option
+              v-for="(item, key) in genderOptions"
+              :key="key"
+              :label="item.label"
+              :value="item.value"
+            />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="学历:">
+          <el-input
+            v-model="formDataStudent.degree"
+            clearable
+            placeholder="请输入"
+          />
+        </el-form-item>
+        <el-form-item label="年级:">
+          <el-input
+            v-model="formDataStudent.grade"
+            clearable
+            placeholder="请输入"
+          />
+        </el-form-item>
+        <el-form-item label="学院:">
+          <el-input
+            v-model="formDataStudent.department"
+            clearable
+            placeholder="请输入"
+          />
+        </el-form-item>
+        <el-form-item label="专业:">
+          <el-input
+            v-model="formDataStudent.major"
+            clearable
+            placeholder="请输入"
+          />
+        </el-form-item>
+        <el-form-item label="班级:">
+          <el-input
+            v-model="formDataStudent.classNum"
+            clearable
+            placeholder="请输入"
+          />
+        </el-form-item>
+        <el-form-item label="特长:">
+          <el-input
+            v-model="formDataStudent.specialty"
+            clearable
+            placeholder="请输入"
+          />
+        </el-form-item>
+        <el-form-item label="QQ号:">
+          <el-input
+            v-model="formDataStudent.QQ"
+            clearable
+            placeholder="请输入"
+          />
+        </el-form-item>
+        <el-form-item label="微信号:">
+          <el-input
+            v-model="formDataStudent.wechat"
+            clearable
+            placeholder="请输入"
+          />
+        </el-form-item>
+        <el-form-item label="银行名称:">
+          <el-input
+            v-model="formDataStudent.bankName"
+            clearable
+            placeholder="请输入"
+          />
+        </el-form-item>
+        <el-form-item label="银行卡号:">
+          <el-input
+            v-model="formDataStudent.bankCardNumber"
+            clearable
+            placeholder="请输入"
+          />
+        </el-form-item>
+        <el-form-item label="介绍:">
+          <el-input
+            v-model="formDataStudent.introduction"
+            clearable
+            placeholder="请输入"
+          />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <div class="dialog-footer">
+          <el-button size="small" @click="closeDialogStudent">取 消</el-button>
+        </div>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -234,15 +450,19 @@ import {
   findTeamInfo,
   getTeamInfoList,
 } from '@/api/teamInfo'
-
+import {
+  createCompanyInfo,
+  updateCompanyInfo,
+  findCompanyInfo,
+} from '@/api/companyInfo'
+import { findStudentInfo } from '@/api/studentInfo'
 // 全量引入格式化工具 请按需保留
 import { getDictFunc, formatDate, filterDict } from '@/utils/format'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { ref } from 'vue'
-import { useRouter } from 'vue-router'
-const router = useRouter()
 // 自动化生成的字典（可能为空）以及字段
 const checkOptions = ref([])
+const genderOptions = ref([])
 const formData = ref({
   name: '',
   companyId: 0,
@@ -305,6 +525,7 @@ getTableData()
 // 获取需要的字典 可能为空 按需保留
 const setOptions = async () => {
   checkOptions.value = await getDictFunc('check')
+  genderOptions.value = await getDictFunc('gender')
 }
 
 // 获取需要的字典 可能为空 按需保留
@@ -432,15 +653,139 @@ const enterDialog = async () => {
   }
 }
 // ============== 自定义部分 ===============
-const goCompany = async (param) => {
-  if (param.companyId === 0) {
-    router.push({ name: 'companyInfo' })
-    return
+// ===========公司弹框==============
+const formDataCompany = ref({
+  name: '',
+  address: '',
+  introduction: '',
+  check: undefined,
+})
+// 行为控制标记（弹窗内部需要增还是改）
+const typeCompany = ref('')
+// 弹窗控制标记
+const dialogFormVisibleCompany = ref(false)
+
+const getCompanyInfoFunc = async (row) => {
+  const res = await findCompanyInfo({ ID: row.companyId })
+  if (res.code === 0) {
+    formDataCompany.value = res.data.recompanyInfo
+    dialogFormVisibleCompany.value = true
   }
-  router.push({ name: 'companyInfo', query: { id: param.companyId } })
 }
-const goUser = async (param) => {
-  router.push({ name: 'studentInfoForm', query: { id: param.uId } })
+// 打开弹窗
+const openDialogCompany = (row) => {
+  if (row.companyId === 0) {
+    typeCompany.value = 'create'
+  } else {
+    typeCompany.value = 'update'
+    getCompanyInfoFunc(row)
+  }
+  formData.value = row
+  dialogFormVisibleCompany.value = true
+}
+
+// 关闭弹窗
+const closeDialogCompany = () => {
+  dialogFormVisibleCompany.value = false
+  formDataCompany.value = {
+    name: '',
+    address: '',
+    introduction: '',
+    check: undefined,
+  }
+}
+// 弹窗确定
+const enterDialogCompany = async () => {
+  let res
+  switch (typeCompany.value) {
+    case 'create':
+      res = await createCompanyInfo(formDataCompany.value)
+      break
+    case 'update':
+      res = await updateCompanyInfo(formDataCompany.value)
+      break
+    default:
+      res = await createTeamInfo(formDataCompany.value)
+      break
+  }
+  if (res.code === 0) {
+    ElMessage({
+      type: 'success',
+      message: '创建/更改成功',
+    })
+    if (typeCompany.value === 'create') {
+      formData.value.companyId = res.data
+      const r = await updateTeamInfo(formData.value)
+      if (r.code === 0) {
+        ElMessage({
+          type: 'success',
+          message: '创建成功',
+        })
+      }
+    }
+    closeDialogCompany()
+    getTableData()
+  }
+}
+// =============学生弹框==============
+// 弹窗控制标记
+const dialogFormVisibleStudent = ref(false)
+const formDataStudent = ref({
+  studentId: '',
+  phone: '',
+  password: '',
+  authorityId: '',
+  nickname: '',
+  email: '',
+  avatar: '',
+  realName: '',
+  gender: undefined,
+  degree: '',
+  grade: '',
+  department: '',
+  major: '',
+  classNum: '',
+  specialty: '',
+  QQ: '',
+  wechat: '',
+  bankName: '',
+  bankCardNumber: '',
+  introduction: '',
+})
+// 打开弹窗
+const openDialogStudent = async (row) => {
+  const res = await findStudentInfo({ ID: row.uId })
+  if (res.code === 0) {
+    formDataStudent.value = res.data.restudentInfo
+    dialogFormVisibleStudent.value = true
+  }
+}
+
+// 关闭弹窗
+const closeDialogStudent = () => {
+  dialogFormVisibleStudent.value = false
+  formDataStudent.value = {
+    studentId: '',
+    phone: '',
+    password: '',
+    authorityId: '',
+    nickname: '',
+    email: '',
+    avatar: '',
+    realName: '',
+    gender: undefined,
+    degree: '',
+    grade: '',
+    department: '',
+    major: '',
+    classNum: '',
+    specialty: '',
+    QQ: '',
+    wechat: '',
+    bankName: '',
+    bankCardNumber: '',
+    introduction: '',
+  }
 }
 </script>
 

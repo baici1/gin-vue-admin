@@ -75,26 +75,30 @@
             formatDate(scope.row.CreatedAt)
           }}</template>
         </el-table-column>
-        <el-table-column align="left" label="竞赛编号" prop="cId" width="120" />
+        <!-- <el-table-column align="left" label="竞赛编号" prop="cId" width="120" /> -->
+        <el-table-column align="left" label="年份" prop="year" width="120" />
         <el-table-column
           align="left"
           label="比赛的届数"
           prop="version"
           width="120"
         />
-        <el-table-column
-          align="left"
-          label="报名开始日期"
-          prop="startTime"
-          width="120"
-        />
+        <el-table-column align="left" label="报名开始日期" width="200">
+          <template #default="scope">
+            {{ formatDate(scope.row.startTime) }}
+          </template>
+        </el-table-column>
         <el-table-column
           align="left"
           label="报名截止日期"
           prop="endTime"
-          width="120"
-        />
-        <el-table-column align="left" label="年份" prop="year" width="120" />
+          width="200"
+        >
+          <template #default="scope">
+            {{ formatDate(scope.row.endTime) }}
+          </template>
+        </el-table-column>
+
         <el-table-column
           align="left"
           label="是否发布"

@@ -159,7 +159,7 @@ zap:
 rabbitmq:
   helloWorld:
     #消息服务器地址、账号、密码， / (斜杠)表示默认的虚拟主机，如果是开发者自己创建的，直接追加在 / (斜杠)后面即可，例如：amqp://账号:密码@ip地址:5672/ginskeleton
-    addr: "amqp://guest:guest@localhost:5672/"
+    addr: "amqp://guest:guest@106.12.133.12:5672/"
     queueName: "helloword_queue"
     durable: false                                        #消息是否持久化
     consumerChanNumber: 2                                 #消费者通道数量（允许一个消费者使用几个连接通道消费、处理消息）

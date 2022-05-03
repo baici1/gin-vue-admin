@@ -74,7 +74,7 @@
         <el-table-column
           align="left"
           label="竞赛编号"
-          prop="cmpId"
+          prop="competitionName"
           width="120"
         />
         <el-table-column align="left" label="项目编号" prop="pId" width="120">
@@ -83,7 +83,7 @@
               type="text"
               size="small"
               class="table-button"
-              @click="goEntryProject(scope.row)"
+              @click="OpenDialogProject(scope.row)"
             >
               {{ scope.row.pId == 0 ? '创建项目' : '查看项目' }}
             </el-button>
@@ -155,16 +155,64 @@
             placeholder="请输入"
           />
         </el-form-item>
-
-        <template #footer>
-          <div class="dialog-footer">
-            <el-button size="small" @click="closeDialog">取 消</el-button>
-            <el-button size="small" type="primary" @click="enterDialog">
-              确 定
-            </el-button>
-          </div>
-        </template>
       </el-form>
+      <template #footer>
+        <div class="dialog-footer">
+          <el-button size="small" @click="closeDialog">取 消</el-button>
+          <el-button size="small" type="primary" @click="enterDialog">
+            确 定
+          </el-button>
+        </div>
+      </template>
+    </el-dialog>
+    <!-- 项目弹出框：用作查看与创建 -->
+    <el-dialog
+      v-model="dialogProjectFormVisible"
+      :before-close="closeDialogProject"
+      title="弹窗操作"
+    >
+      <el-form
+        :model="ProjectformData"
+        label-position="right"
+        label-width="80px"
+      >
+        <el-form-item label="项目编号:">
+          <el-input
+            v-model="ProjectformData.projectCode"
+            clearable
+            placeholder="请输入"
+          />
+        </el-form-item>
+        <el-form-item label="项目名称:">
+          <el-input
+            v-model="ProjectformData.projectName"
+            clearable
+            placeholder="请输入"
+          />
+        </el-form-item>
+        <el-form-item label="项目简介:">
+          <el-input
+            v-model="ProjectformData.introduction"
+            clearable
+            placeholder="请输入"
+          />
+        </el-form-item>
+        <el-form-item label="备注:">
+          <el-input
+            v-model="ProjectformData.remark"
+            clearable
+            placeholder="请输入"
+          />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <div class="dialog-footer">
+          <el-button size="small" @click="closeDialogProject">取 消</el-button>
+          <el-button size="small" type="primary" @click="enterDialogProject">
+            确 定
+          </el-button>
+        </div>
+      </template>
     </el-dialog>
   </div>
 </template>
@@ -184,7 +232,13 @@ import {
   findEntryForm,
   getEntryFormList,
 } from '@/api/entryForm'
-
+import {
+  createProjectInfo,
+  updateProjectInfo,
+  findProjectInfo,
+} from '@/api/projectInfo'
+import { findCompetitionSche } from '@/api/competitionSche'
+import { findCompetitionInfo } from '@/api/competitionInfo'
 // 全量引入格式化工具 请按需保留
 import { getDictFunc, formatDate } from '@/utils/format'
 import { ElMessage, ElMessageBox } from 'element-plus'
@@ -199,6 +253,7 @@ const formData = ref({
   pId: 0,
   rank: undefined,
   achName: '',
+  competitionName: '无',
 })
 
 // =========== 表格控制部分 ===========
@@ -245,6 +300,7 @@ const getTableData = async () => {
     page.value = table.data.page
     pageSize.value = table.data.pageSize
   }
+  getFormCompetitionInfo()
 }
 
 getTableData()
@@ -381,15 +437,99 @@ const enterDialog = async () => {
 }
 
 // ============== 自定义部分 ===============
-const goEntryProject = async (param) => {
-  if (param.companyId === 0) {
-    router.push({ name: 'projectInfo' })
-    return
-  }
-  router.push({ name: 'projectInfo', query: { id: param.pId } })
-}
 const goEntryMember = async (param) => {
   router.push({ name: 'entryMember', query: { formId: param.ID } })
+}
+
+// ========= 项目弹出框部分=============
+const ProjectformData = ref({
+  projectCode: '',
+  projectName: '',
+  introduction: '',
+  remark: '',
+})
+
+// 弹窗控制标记
+const dialogProjectFormVisible = ref(false)
+
+// 获取项目的详情信息
+const getProjectInfoFunc = async (id) => {
+  const res = await findProjectInfo({ ID: id })
+  if (res.code === 0) {
+    ProjectformData.value = res.data.reprojectInfo
+    dialogProjectFormVisible.value = true
+  }
+}
+// 打开弹窗
+const OpenDialogProject = (row) => {
+  if (row.pId === 0) {
+    typeProject.value = 'create'
+  } else {
+    typeProject.value = 'update'
+    getProjectInfoFunc(row.pId)
+  }
+  formData.value = row
+  dialogProjectFormVisible.value = true
+}
+// 行为控制标记（弹窗内部需要增还是改）
+const typeProject = ref('')
+// 关闭弹窗
+const closeDialogProject = () => {
+  dialogProjectFormVisible.value = false
+  ProjectformData.value = {
+    projectCode: '',
+    projectName: '',
+    introduction: '',
+    remark: '',
+  }
+}
+// 弹窗确定
+const enterDialogProject = async () => {
+  let res
+  switch (typeProject.value) {
+    case 'create':
+      res = await createProjectInfo(ProjectformData.value)
+      break
+    case 'update':
+      res = await updateProjectInfo(ProjectformData.value)
+      break
+    default:
+      res = await createProjectInfo(ProjectformData.value)
+      break
+  }
+  if (res.code === 0) {
+    ElMessage({
+      type: 'success',
+      message: '创建/更改成功',
+    })
+    if (typeProject.value === 'create') {
+      formData.value.pId = res.data
+      const r = await updateEntryForm(formData.value)
+      if (r.code === 0) {
+        ElMessage({
+          type: 'success',
+          message: '创建成功',
+        })
+      }
+    }
+    closeDialogProject()
+  }
+}
+// ====================比赛信息======================
+const getFormCompetitionInfo = async () => {
+  for (let i = 0; i < tableData.value.length; i++) {
+    const res = await findCompetitionSche({
+      ID: tableData.value[i].cmpId,
+    })
+    if (res.code === 0) {
+      const ans = await findCompetitionInfo({
+        ID: res.data.recompetitionSche.cId,
+      })
+      if (ans.code === 0) {
+        tableData.value[i].competitionName = ans.data.recompetitionInfo.cName
+      }
+    }
+  }
 }
 </script>
 

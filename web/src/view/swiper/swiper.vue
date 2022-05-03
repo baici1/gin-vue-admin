@@ -104,20 +104,9 @@
             />
           </template>
         </el-table-column>
-        <el-table-column
-          align="left"
-          label="是否展示"
-          prop="isShow"
-          width="120"
-        >
+        <el-table-column align="center" label="是否展示" width="120">
           <template #default="scope">
-            <el-switch
-              v-model="scope.row.isShow"
-              inline-prompt
-              active-text="是"
-              inactive-text="否"
-              disabled
-            />
+            {{ formatBoolean(scope.row.isShow) }}
           </template>
         </el-table-column>
         <el-table-column align="left" label="分组" prop="group" width="120">
@@ -258,7 +247,12 @@ import {
 } from '@/api/swiper'
 
 // 全量引入格式化工具 请按需保留
-import { getDictFunc, formatDate, filterDict } from '@/utils/format'
+import {
+  getDictFunc,
+  formatDate,
+  filterDict,
+  formatBoolean,
+} from '@/utils/format'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { ref } from 'vue'
 import { Plus } from '@element-plus/icons-vue'
