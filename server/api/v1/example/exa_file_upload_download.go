@@ -80,3 +80,16 @@ func (u *FileUploadAndDownloadApi) GetFileList(c *gin.Context) {
 		}, "获取成功", c)
 	}
 }
+
+func (u *FileUploadAndDownloadApi) FindFileInfo(c *gin.Context) {
+	var file example.ExaFileUploadAndDownload
+	_ = c.ShouldBind(&file)
+	if err, data := fileUploadAndDownloadService.FindFile(file.ID); err != nil {
+		global.GVA_LOG.Error("获取失败!", zap.Error(err))
+		response.FailWithMessage("获取失败", c)
+		return
+	} else {
+		response.OkWithDetailed(data, "获取成功", c)
+	}
+
+}

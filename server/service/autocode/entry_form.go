@@ -1,7 +1,6 @@
 package autocode
 
 import (
-	"fmt"
 	"github.com/flipped-aurora/gin-vue-admin/server/global"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/autocode"
 	autoCodeReq "github.com/flipped-aurora/gin-vue-admin/server/model/autocode/request"
@@ -81,7 +80,7 @@ func (entryFormService *EntryFormService) GetAllEntryFormDetailInfo(uid int) (er
 	//根据formid获取每个form的相关信息
 	db := global.GVA_DB.Table(autocode.EntryForm{}.TableName())
 	//这里可以添加一些条件，展示不添加
-	err = db.Where("id in ?", forms).Preload("Status", "u_id=?", uid).Preload("Project").Preload("Competition").Preload("Competition.BaseInfo").Find(&data).Error
+	err = db.Where("id in ?", forms).Preload("Competition").Preload("Competition.BaseInfo").Find(&data).Error
 	return err, data
 }
 func (entryFormService *EntryFormService) GetEntryFormDetailInfo(fid int) (error, *autocodeRes.EnteryFormDetail) {
@@ -89,22 +88,13 @@ func (entryFormService *EntryFormService) GetEntryFormDetailInfo(fid int) (error
 	//根据formid获取每个form的相关信息
 	db := global.GVA_DB.Table(autocode.EntryForm{}.TableName())
 	//这里可以添加一些条件，展示不添加
-	err := db.Where("id=?", fid).Preload("Status").Preload("Project").Preload("Competition").Preload("Competition.BaseInfo").Find(data).Error
+	err := db.Where("id=?", fid).Preload("Competition").Preload("Competition.BaseInfo").Find(data).Error
 	return err, data
 }
 
 func (entryFormService *EntryFormService) CreateEntryFormByUser(param autoCodeReq.CreateEntryForm) error {
 	tx := global.GVA_DB.Begin()
 	var err error
-	//如果有项目创建项目
-	if param.Project != nil {
-		err = tx.Model(&autocode.ProjectInfo{}).Create(param.Project).Error
-		param.PId = int(param.Project.ID)
-		if err != nil {
-			tx.Rollback()
-			return err
-		}
-	}
 	//创建参赛表
 	err = tx.Model(&autocode.EntryForm{}).Select("PId", "CmpId", "Name").Create(&param).Error
 	param.Status.FormId = int(param.ID)
@@ -141,82 +131,6 @@ func (entryFormService *EntryFormService) UpdateEntryFormByUser(param autoCodeRe
 		if err != nil {
 			tx.Rollback()
 			return err
-		}
-	}
-	//更新人员信息  1.增加人2.修改人 3.删除人 三个操作可能同时发生
-	type mem struct {
-		id     int
-		formid int
-		uid    int
-	}
-	original := map[mem]bool{}
-	//获取原始成员信息
-	var oldMem []autocode.EntryMember
-	err = tx.Model(&autocode.EntryMember{}).Where("form_id=?", param.ID).Find(&oldMem).Error
-	if err != nil {
-		tx.Rollback()
-		return err
-	}
-	for i := 0; i < len(oldMem); i++ {
-		original[mem{
-			formid: oldMem[i].FormId,
-			uid:    oldMem[i].UId,
-		}] = true
-	}
-	fmt.Println(original)
-	fmt.Println(param.Members)
-	//遍历参数中的人员信息，原始信息可找到的选择更新，没有找到的删除，剩余部分进行创建
-	for i, item := range param.Members {
-
-		if _, ok := original[mem{
-			formid: item.FormId,
-			uid:    item.UId,
-		}]; ok {
-			item.Order = i + 1
-			fmt.Println(item)
-			err = tx.Save(&item).Error
-			if err != nil {
-				tx.Rollback()
-				return err
-			}
-		} else {
-			item.FormId = int(param.ID)
-			item.Order = i
-			//能否找到，有可能是软删除
-			if err := global.GVA_DB.Unscoped().Where("u_id=? and deleted_at IS NOT NULL", item.UId).First(&autocode.EntryMember{}).Error; err == nil {
-				err = tx.Exec("UPDATE entry_member SET deleted_at=null WHERE u_id=?;", item.UId).Error
-				if err != nil {
-					tx.Rollback()
-					return err
-				}
-				err = tx.Save(&item).Error
-				if err != nil {
-					tx.Rollback()
-					return err
-				}
-			} else {
-				err = tx.Model(&autocode.EntryMember{}).Create(&item).Error
-				if err != nil {
-					tx.Rollback()
-					return err
-				}
-			}
-
-		}
-		//将遍历的删除
-		delete(original, mem{
-			formid: int(param.ID),
-			uid:    item.UId,
-		})
-	}
-	//多余的人进行删除
-	if len(original) > 0 {
-		for key, _ := range original {
-			err = tx.Model(&autocode.EntryMember{}).Where("form_id=? and u_id=?", key.formid, key.uid).Delete(&autocode.EntryMember{}).Error
-			if err != nil {
-				tx.Rollback()
-				return err
-			}
 		}
 	}
 	//更新参赛表一些信息

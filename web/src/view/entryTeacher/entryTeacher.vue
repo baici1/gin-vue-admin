@@ -2,12 +2,6 @@
   <div>
     <div class="gva-search-box">
       <el-form :inline="true" :model="searchInfo" class="demo-form-inline">
-        <el-form-item label="赛事级别">
-          <el-input v-model="searchInfo.match" placeholder="搜索条件" />
-        </el-form-item>
-        <el-form-item label="获奖级别">
-          <el-input v-model="searchInfo.rank" placeholder="搜索条件" />
-        </el-form-item>
         <el-form-item>
           <el-button
             size="small"
@@ -67,27 +61,12 @@
         </el-table-column>
         <el-table-column
           align="left"
-          label="队伍id"
+          label="参赛表id"
           prop="formId"
           width="120"
         />
-        <el-table-column align="left" label="赛事级别" prop="match" width="120">
-          <template #default="scope">
-            {{ filterDict(scope.row.match, competitionLevelOptions) }}
-          </template>
-        </el-table-column>
-        <el-table-column align="left" label="获奖级别" prop="rank" width="120">
-          <template #default="scope">
-            {{ filterDict(scope.row.rank, awardOptions) }}
-          </template>
-        </el-table-column>
-        <el-table-column align="left" label="备注" prop="remark" width="120" />
-        <el-table-column align="left" label="成果附件" prop="url" width="120" />
-        <el-table-column align="left" label="审核" prop="check" width="120">
-          <template #default="scope">{{
-            formatBoolean(scope.row.check)
-          }}</template>
-        </el-table-column>
+        <el-table-column align="left" label="老师id" prop="tId" width="120" />
+        <el-table-column align="left" label="排序" prop="order" width="120" />
         <el-table-column align="left" label="按钮组">
           <template #default="scope">
             <el-button
@@ -95,7 +74,7 @@
               icon="edit"
               size="small"
               class="table-button"
-              @click="updateAchievementFunc(scope.row)"
+              @click="updateEntryTeacherFunc(scope.row)"
             >
               变更
             </el-button>
@@ -128,57 +107,25 @@
       title="弹窗操作"
     >
       <el-form :model="formData" label-position="right" label-width="80px">
-        <el-form-item label="队伍id:">
+        <el-form-item label="参赛表id:">
           <el-input
             v-model.number="formData.formId"
             clearable
             placeholder="请输入"
           />
         </el-form-item>
-        <el-form-item label="赛事级别:">
-          <el-select
-            v-model="formData.match"
-            placeholder="请选择"
-            style="width: 100%"
+        <el-form-item label="老师id:">
+          <el-input
+            v-model.number="formData.tId"
             clearable
-          >
-            <el-option
-              v-for="(item, key) in competitionLevelOptions"
-              :key="key"
-              :label="item.label"
-              :value="item.value"
-            />
-          </el-select>
+            placeholder="请输入"
+          />
         </el-form-item>
-        <el-form-item label="获奖级别:">
-          <el-select
-            v-model="formData.rank"
-            placeholder="请选择"
-            style="width: 100%"
+        <el-form-item label="排序:">
+          <el-input
+            v-model.number="formData.order"
             clearable
-          >
-            <el-option
-              v-for="(item, key) in awardOptions"
-              :key="key"
-              :label="item.label"
-              :value="item.value"
-            />
-          </el-select>
-        </el-form-item>
-        <el-form-item label="备注:">
-          <el-input v-model="formData.remark" clearable placeholder="请输入" />
-        </el-form-item>
-        <el-form-item label="成果附件:">
-          <el-input v-model="formData.url" clearable placeholder="请输入" />
-        </el-form-item>
-        <el-form-item label="审核:">
-          <el-switch
-            v-model="formData.check"
-            active-color="#13ce66"
-            inactive-color="#ff4949"
-            active-text="是"
-            inactive-text="否"
-            clearable
+            placeholder="请输入"
           />
         </el-form-item>
       </el-form>
@@ -196,40 +143,30 @@
 
 <script>
 export default {
-  name: 'Achievement',
+  name: 'EntryTeacher',
 }
 </script>
 
 <script setup>
 import {
-  createAchievement,
-  deleteAchievement,
-  deleteAchievementByIds,
-  updateAchievement,
-  findAchievement,
-  getAchievementList,
-} from '@/api/achievement'
+  createEntryTeacher,
+  deleteEntryTeacher,
+  deleteEntryTeacherByIds,
+  updateEntryTeacher,
+  findEntryTeacher,
+  getEntryTeacherList,
+} from '@/api/entryTeacher'
 
 // 全量引入格式化工具 请按需保留
-import {
-  getDictFunc,
-  formatDate,
-  formatBoolean,
-  filterDict,
-} from '@/utils/format'
+import { formatDate } from '@/utils/format'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { ref } from 'vue'
 
 // 自动化生成的字典（可能为空）以及字段
-const competitionLevelOptions = ref([])
-const awardOptions = ref([])
 const formData = ref({
   formId: 0,
-  match: undefined,
-  rank: undefined,
-  remark: '',
-  url: '',
-  check: false,
+  tId: 0,
+  order: 0,
 })
 
 // =========== 表格控制部分 ===========
@@ -248,9 +185,6 @@ const onReset = () => {
 const onSubmit = () => {
   page.value = 1
   pageSize.value = 10
-  if (searchInfo.value.check === '') {
-    searchInfo.value.check = null
-  }
   getTableData()
 }
 
@@ -268,7 +202,7 @@ const handleCurrentChange = (val) => {
 
 // 查询
 const getTableData = async () => {
-  const table = await getAchievementList({
+  const table = await getEntryTeacherList({
     page: page.value,
     pageSize: pageSize.value,
     ...searchInfo.value,
@@ -286,10 +220,7 @@ getTableData()
 // ============== 表格控制部分结束 ===============
 
 // 获取需要的字典 可能为空 按需保留
-const setOptions = async () => {
-  competitionLevelOptions.value = await getDictFunc('competitionLevel')
-  awardOptions.value = await getDictFunc('award')
-}
+const setOptions = async () => {}
 
 // 获取需要的字典 可能为空 按需保留
 setOptions()
@@ -308,7 +239,7 @@ const deleteRow = (row) => {
     cancelButtonText: '取消',
     type: 'warning',
   }).then(() => {
-    deleteAchievementFunc(row)
+    deleteEntryTeacherFunc(row)
   })
 }
 
@@ -329,7 +260,7 @@ const onDelete = async () => {
     multipleSelection.value.map((item) => {
       ids.push(item.ID)
     })
-  const res = await deleteAchievementByIds({ ids })
+  const res = await deleteEntryTeacherByIds({ ids })
   if (res.code === 0) {
     ElMessage({
       type: 'success',
@@ -347,18 +278,18 @@ const onDelete = async () => {
 const type = ref('')
 
 // 更新行
-const updateAchievementFunc = async (row) => {
-  const res = await findAchievement({ ID: row.ID })
+const updateEntryTeacherFunc = async (row) => {
+  const res = await findEntryTeacher({ ID: row.ID })
   type.value = 'update'
   if (res.code === 0) {
-    formData.value = res.data.reachievement
+    formData.value = res.data.reentryTeacher
     dialogFormVisible.value = true
   }
 }
 
 // 删除行
-const deleteAchievementFunc = async (row) => {
-  const res = await deleteAchievement({ ID: row.ID })
+const deleteEntryTeacherFunc = async (row) => {
+  const res = await deleteEntryTeacher({ ID: row.ID })
   if (res.code === 0) {
     ElMessage({
       type: 'success',
@@ -385,11 +316,8 @@ const closeDialog = () => {
   dialogFormVisible.value = false
   formData.value = {
     formId: 0,
-    match: undefined,
-    rank: undefined,
-    remark: '',
-    url: '',
-    check: false,
+    tId: 0,
+    order: 0,
   }
 }
 // 弹窗确定
@@ -397,13 +325,13 @@ const enterDialog = async () => {
   let res
   switch (type.value) {
     case 'create':
-      res = await createAchievement(formData.value)
+      res = await createEntryTeacher(formData.value)
       break
     case 'update':
-      res = await updateAchievement(formData.value)
+      res = await updateEntryTeacher(formData.value)
       break
     default:
-      res = await createAchievement(formData.value)
+      res = await createEntryTeacher(formData.value)
       break
   }
   if (res.code === 0) {

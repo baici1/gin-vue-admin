@@ -2,16 +2,9 @@
   <div>
     <div class="gva-form-box">
       <el-form :model="formData" label-position="right" label-width="80px">
-        <el-form-item label="队伍:">
+        <el-form-item label="队伍id:">
           <el-input
             v-model.number="formData.formId"
-            clearable
-            placeholder="请输入"
-          />
-        </el-form-item>
-        <el-form-item label="比赛:">
-          <el-input
-            v-model.number="formData.comId"
             clearable
             placeholder="请输入"
           />
@@ -82,11 +75,10 @@ import { ref } from 'vue'
 const route = useRoute()
 const router = useRouter()
 const type = ref('')
-const awardOptions = ref([])
 const competitionLevelOptions = ref([])
+const awardOptions = ref([])
 const formData = ref({
   formId: 0,
-  comId: 0,
   match: undefined,
   rank: undefined,
   remark: '',
@@ -106,8 +98,8 @@ const init = async () => {
   } else {
     type.value = 'create'
   }
-  awardOptions.value = await getDictFunc('award')
   competitionLevelOptions.value = await getDictFunc('competitionLevel')
+  awardOptions.value = await getDictFunc('award')
 }
 
 init()

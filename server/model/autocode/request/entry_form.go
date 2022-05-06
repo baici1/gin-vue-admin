@@ -17,11 +17,10 @@ type EntryFormAllSearch struct {
 
 type CreateEntryForm struct {
 	global.GVA_MODEL
-	Name    string                `json:"name" form:"name" gorm:"column:name;comment:参赛表名;size:255;" binding:"required"`
-	CmpId   *int                  `json:"cmpId" form:"cmpId" gorm:"column:cmp_id;comment:竞赛编号;size:10;" binding:"required"`
-	PId     int                   `json:"pId" form:"pId" gorm:"column:p_id;comment:项目编号，0代表没有;size:10;"`
-	Status  autocode.EntryMember  `json:"status"`
-	Project *autocode.ProjectInfo `json:"project,omitempty" `
+	Name   string               `json:"name" form:"name" gorm:"column:name;comment:参赛表名;size:255;" binding:"required"`
+	CmpId  *int                 `json:"cmpId" form:"cmpId" gorm:"column:cmp_id;comment:竞赛编号;size:10;" binding:"required"`
+	PId    int                  `json:"pId" form:"pId" gorm:"column:p_id;comment:项目编号，0代表没有;size:10;"`
+	Status autocode.EntryMember `json:"status"`
 }
 
 type UpdateEntryForm struct {

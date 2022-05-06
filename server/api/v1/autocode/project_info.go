@@ -1,6 +1,7 @@
 package autocode
 
 import (
+	"fmt"
 	"github.com/flipped-aurora/gin-vue-admin/server/global"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/autocode"
 	autocodeReq "github.com/flipped-aurora/gin-vue-admin/server/model/autocode/request"
@@ -28,6 +29,7 @@ var projectInfoService = service.ServiceGroupApp.AutoCodeServiceGroup.ProjectInf
 func (projectInfoApi *ProjectInfoApi) CreateProjectInfo(c *gin.Context) {
 	var projectInfo autocode.ProjectInfo
 	_ = c.ShouldBindJSON(&projectInfo)
+	fmt.Println(projectInfo)
 	if err, data := projectInfoService.CreateProjectInfo(projectInfo); err != nil {
 		global.GVA_LOG.Error("创建失败!", zap.Error(err))
 		response.FailWithMessage("创建失败", c)
