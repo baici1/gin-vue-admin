@@ -76,6 +76,9 @@ func (competitionScheService *CompetitionScheService) GetCompetitionScheDetailLi
 	db = db.Joins("left join competition_info on competition_sche.c_id=competition_info.id")
 	//可加条件
 	db = db.Where("competition_info.c_name like ?", "%"+info.SearchInfo+"%")
+	if info.CType != 0 {
+		db = db.Where("competition_info.c_type =?", info.CType)
+	}
 	err = db.Limit(limit).Offset(offset).Preload("BaseInfo", "c_name like ?", "%"+info.SearchInfo+"%").Find(&competitionSches).Error
 	err = db.Count(&total).Error
 	if err != nil {

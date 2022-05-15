@@ -69,8 +69,8 @@ func (entryFormService *EntryFormService) GetEntryFormInfoList(info autoCodeReq.
 	return err, entryForms, total
 }
 
-func (entryFormService *EntryFormService) GetAllEntryFormDetailInfo(uid int) (error, []autocodeRes.EnteryFormDetail) {
-	var data = make([]autocodeRes.EnteryFormDetail, 0)
+func (entryFormService *EntryFormService) GetAllEntryFormDetailInfo(uid int) (error, []autocodeRes.EnterysFormInfo) {
+	var data = make([]autocodeRes.EnterysFormInfo, 0)
 	//根据uid获取用户参与的所有的参赛表 id
 	var forms = make([]int, 0)
 	err := global.GVA_DB.Model(&autocode.EntryMember{}).Select("form_id").Where("u_id=?", uid).Scan(&forms).Error
@@ -80,7 +80,7 @@ func (entryFormService *EntryFormService) GetAllEntryFormDetailInfo(uid int) (er
 	//根据formid获取每个form的相关信息
 	db := global.GVA_DB.Table(autocode.EntryForm{}.TableName())
 	//这里可以添加一些条件，展示不添加
-	err = db.Where("id in ?", forms).Preload("Competition").Preload("Competition.BaseInfo").Find(&data).Error
+	err = db.Where("id in ?", forms).Preload("Competition").Preload("Competition.BaseInfo").Preload("Project").Preload("Member", "u_id=?", uid).Preload("Member.BaseInfo").Find(&data).Error
 	return err, data
 }
 func (entryFormService *EntryFormService) GetEntryFormDetailInfo(fid int) (error, *autocodeRes.EnteryFormDetail) {

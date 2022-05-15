@@ -46,7 +46,7 @@ func (studentRecruitService *StudentRecruitService) UpdateStudentRecruit(student
 // GetStudentRecruit 根据id获取StudentRecruit记录
 // Author [piexlmax](https://github.com/piexlmax)
 func (studentRecruitService *StudentRecruitService) GetStudentRecruit(id uint) (err error, studentRecruit autocode.StudentRecruit) {
-	err = global.GVA_DB.Where("id = ?", id).Preload("Competition").Preload("Competition.BaseInfo").Preload("Member").First(&studentRecruit).Error
+	err = global.GVA_DB.Where("id = ?", id).First(&studentRecruit).Error
 	return
 }
 
@@ -69,10 +69,11 @@ func (studentRecruitService *StudentRecruitService) GetStudentRecruitInfoList(in
 	if err != nil {
 		return
 	}
-	err = db.Limit(limit).Offset(offset).Preload("Competition").Preload("Competition.BaseInfo").Preload("Member").Find(&studentRecruits).Error
+	err = db.Limit(limit).Offset(offset).Find(&studentRecruits).Error
 	return err, studentRecruits, total
 }
-func (studentRecruitService *StudentRecruitService) ProduceStudentRecruitInfomation(stu autoCodeReq.StudentRequestInfo, info autocode.StudentRecruit) (err error) {
+
+func (studentRecruitService *StudentRecruitService) ProduceStudentRecruitInfomation(stu autocode.StudentInfo, info autocode.StudentRecruit) (err error) {
 	//首先选择简单的工作模式 hello_world
 	/*
 		思路：
@@ -86,20 +87,16 @@ func (studentRecruitService *StudentRecruitService) ProduceStudentRecruitInfomat
 			2.根据需要传递消息生成str 序列化
 			3.关闭传送
 	*/
-	//对信息进行校验，保证后续功能能正常进行下去。
-	if stu.QQ == "" || stu.Wechat == "" || *info.Num <= 0 {
-		return errors.New("很抱歉！不能继续申请。")
-	}
 	helloProducer, err := hello_world.CreateProducer()
 	if err != nil {
 		global.GVA_LOG.Error("创建生产者失败", zap.Error(err))
 		os.Exit(1)
 	}
 	//将生产者信息序列化，作为消息进行发布
-	infomation := autoCodeReq.StudentRecruitToRabbitmq{
-		Producer: stu,
-		Comsumer: info,
-	}
+	infomation := autocode.ProduceComsumeInfomation{}
+	infomation.Producer = int(stu.ID)
+	infomation.Comsumer = *info.UId
+	infomation.FormId = *info.EntryId
 	data, err := json.Marshal(infomation)
 	if err != nil {
 		global.GVA_LOG.Error("序列化失败", zap.Error(err))

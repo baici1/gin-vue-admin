@@ -142,9 +142,9 @@ func (studentRecruitApi *StudentRecruitApi) GetStudentRecruitList(c *gin.Context
 }
 
 func (studentRecruitApi *StudentRecruitApi) ProduceStudentRecruitInfomation(c *gin.Context) {
-	var studentRecruit autocodeReq.StudentRecruitToRabbitmq
+	var studentRecruit autocodeReq.StudentRecruitCreate
 	_ = c.ShouldBindJSON(&studentRecruit)
-	if err := studentRecruitService.ProduceStudentRecruitInfomation(studentRecruit.Producer, studentRecruit.Comsumer); err != nil {
+	if err := studentRecruitService.ProduceStudentRecruitInfomation(studentRecruit.StudentInfo, studentRecruit.StudentRecruit); err != nil {
 		global.GVA_LOG.Error("发送失败!", zap.Error(err))
 		response.FailWithMessage("发送失败", c)
 	} else {

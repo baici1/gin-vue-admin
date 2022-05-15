@@ -90,7 +90,9 @@ func (s *NoAuthRouter) InitNoAuthRouter(Router *gin.RouterGroup) {
 		studentRecruitRouter := NoAuthRouterWithoutRecord.Group("studentRecruit")
 		var studentRecruitApi = v1.ApiGroupApp.AutoCodeApiGroup.StudentRecruitApi
 		{
-			studentRecruitRouter.POST("send", studentRecruitApi.ProduceStudentRecruitInfomation) // 根据ID获取StudentRecruit
+			studentRecruitRouter.POST("send", studentRecruitApi.ProduceStudentRecruitInfomation)       // 根据ID获取StudentRecruit
+			studentRecruitRouter.GET("getStudentRecruitList", studentRecruitApi.GetStudentRecruitList) // 获取StudentRecruit列表
+			studentRecruitRouter.GET("findStudentRecruit", studentRecruitApi.FindStudentRecruit)
 		}
 	}
 

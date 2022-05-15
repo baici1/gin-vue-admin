@@ -7,7 +7,7 @@
             class="login_panle_form_title_logo"
             :src="$GIN_VUE_ADMIN.appLogo"
             alt
-          >
+          />
           <p class="login_panle_form_title_p">{{ $GIN_VUE_ADMIN.appName }}</p>
         </div>
         <el-form
@@ -39,10 +39,7 @@
               <template #suffix>
                 <span class="input-icon">
                   <el-icon>
-                    <component
-                      :is="lock"
-                      @click="changeLock"
-                    />
+                    <component :is="lock" @click="changeLock" />
                   </el-icon>
                 </span>
               </template>
@@ -61,7 +58,7 @@
                   :src="picPath"
                   alt="请输入验证码"
                   @click="loginVerify()"
-                >
+                />
               </div>
             </div>
           </el-form-item>
@@ -71,13 +68,15 @@
               style="width: 46%"
               size="large"
               @click="checkInit"
-            >前往初始化</el-button>
+              >前往初始化</el-button
+            >
             <el-button
               type="primary"
               size="large"
               style="width: 46%; margin-left: 8%"
               @click="submitForm"
-            >登 录</el-button>
+              >登 录</el-button
+            >
           </el-form-item>
         </el-form>
       </div>
@@ -85,19 +84,19 @@
       <div class="login_panle_foot">
         <div class="links">
           <a href="http://doc.henrongyi.top/" target="_blank">
-            <img src="@/assets/docs.png" class="link-icon">
+            <img src="@/assets/docs.png" class="link-icon" />
           </a>
           <a href="https://support.qq.com/product/371961" target="_blank">
-            <img src="@/assets/kefu.png" class="link-icon">
+            <img src="@/assets/kefu.png" class="link-icon" />
           </a>
           <a
             href="https://github.com/flipped-aurora/gin-vue-admin"
             target="_blank"
           >
-            <img src="@/assets/github.png" class="link-icon">
+            <img src="@/assets/github.png" class="link-icon" />
           </a>
           <a href="https://space.bilibili.com/322210472" target="_blank">
-            <img src="@/assets/video.png" class="link-icon">
+            <img src="@/assets/video.png" class="link-icon" />
           </a>
         </div>
         <div class="copyright">
@@ -142,6 +141,11 @@ const checkPassword = (rule, value, callback) => {
 // 获取验证码
 const loginVerify = () => {
   captcha({}).then((ele) => {
+    console.log(
+      '%c 🥨 ele: ',
+      'font-size:20px;background-color: #3F7CFF;color:#fff;',
+      ele
+    )
     rules.captcha[1].max = ele.data.captchaLength
     rules.captcha[1].min = ele.data.captchaLength
     picPath.value = ele.data.picPath
@@ -177,11 +181,11 @@ const rules = reactive({
 })
 
 const userStore = useUserStore()
-const login = async() => {
+const login = async () => {
   return await userStore.LoginIn(loginFormData)
 }
 const submitForm = () => {
-  loginForm.value.validate(async(v) => {
+  loginForm.value.validate(async (v) => {
     if (v) {
       const flag = await login()
       if (!flag) {
@@ -200,7 +204,7 @@ const submitForm = () => {
 }
 
 // 跳转初始化
-const checkInit = async() => {
+const checkInit = async () => {
   const res = await checkDB()
   if (res.code === 0) {
     if (res.data?.needInit) {
@@ -214,9 +218,8 @@ const checkInit = async() => {
     }
   }
 }
-
 </script>
 
 <style lang="scss" scoped>
-@import "@/style/newLogin.scss";
+@import '@/style/newLogin.scss';
 </style>

@@ -65,7 +65,7 @@ db-list:
   log-mode: ""
   log-zap: false
 email:
-  to: 19979977994@qq.com
+  to: 1308964967@qq.com
   port: 465
   from: 249337001@qq.com
   host: smtp.qq.com

@@ -12,7 +12,7 @@ type StudentInfo struct {
 	global.GVA_MODEL
 	StudentId      string `json:"studentId" form:"studentId" gorm:"column:student_id;comment:学号;size:20;"`
 	Phone          string `json:"phone" form:"phone" gorm:"column:phone;comment:手机号;size:255;"`
-	Password       string `json:"password" form:"password" gorm:"column:password;comment:密码;size:255;"`
+	Password       string `json:"-" form:"password" gorm:"column:password;comment:密码;size:255;"`
 	AuthorityId    string `json:"authorityId" form:"authorityId" gorm:"column:authority_id;comment:用户身份;size:191;"`
 	Nickname       string `json:"nickname" form:"nickname" gorm:"column:nickname;comment:昵称;size:20;"`
 	Email          string `json:"email" form:"email" gorm:"column:email;comment:邮箱;size:255;"`

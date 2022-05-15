@@ -11,7 +11,7 @@ type CompetitionScheSearch struct {
 }
 
 type CompetitionDetailSearch struct {
-	Status     int    `json:"status" form:"status"`
+	CType      int    `json:"ctype" form:"ctype"`
 	SearchInfo string `json:"searchInfo" form:"searchInfo"`
 	autocode.CompetitionSche
 	request.PageInfo
