@@ -16,8 +16,9 @@ func (s *NoAuthRouter) InitNoAuthRouter(Router *gin.RouterGroup) {
 		var articleApi = v1.ApiGroupApp.AutoCodeApiGroup.ArticleApi
 		NoAuthArticle := NoAuthRouterWithoutRecord.Group("article")
 		{
-			NoAuthArticle.GET("getArticleList", articleApi.GetArticleList) // 获取Article列表
-			NoAuthArticle.GET("findArticle", articleApi.FindArticle)       // 根据ID获取Article
+			NoAuthArticle.GET("getArticleList", articleApi.GetArticleList)        // 获取Article列表
+			NoAuthArticle.GET("findArticle", articleApi.FindArticle)              // 根据ID获取Article
+			NoAuthArticle.GET("matchArticle", articleApi.EsGetArticleInfoByMatch) // 根据ID获取Article
 		}
 		var swiperApi = v1.ApiGroupApp.AutoCodeApiGroup.SwiperApi
 		NoAuthSwiper := NoAuthRouterWithoutRecord.Group("swiper")
@@ -90,7 +91,7 @@ func (s *NoAuthRouter) InitNoAuthRouter(Router *gin.RouterGroup) {
 		studentRecruitRouter := NoAuthRouterWithoutRecord.Group("studentRecruit")
 		var studentRecruitApi = v1.ApiGroupApp.AutoCodeApiGroup.StudentRecruitApi
 		{
-			studentRecruitRouter.POST("send", studentRecruitApi.ProduceStudentRecruitInfomation)       // 根据ID获取StudentRecruit
+			studentRecruitRouter.POST("send", studentRecruitApi.ProduceRecruitInfomation)              // 根据ID获取StudentRecruit
 			studentRecruitRouter.GET("getStudentRecruitList", studentRecruitApi.GetStudentRecruitList) // 获取StudentRecruit列表
 			studentRecruitRouter.GET("findStudentRecruit", studentRecruitApi.FindStudentRecruit)
 		}

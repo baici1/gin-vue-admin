@@ -144,7 +144,17 @@ func (studentRecruitApi *StudentRecruitApi) GetStudentRecruitList(c *gin.Context
 func (studentRecruitApi *StudentRecruitApi) ProduceStudentRecruitInfomation(c *gin.Context) {
 	var studentRecruit autocodeReq.StudentRecruitToRabbitmq
 	_ = c.ShouldBindJSON(&studentRecruit)
-	if err := studentRecruitService.ProduceStudentRecruitInfomation(studentRecruit.Producer, studentRecruit.Comsumer); err != nil {
+	if err := studentRecruitService.ProduceStudentRecruitInfomationByHello(studentRecruit.Producer, studentRecruit.Comsumer); err != nil {
+		global.GVA_LOG.Error("发送失败!", zap.Error(err))
+		response.FailWithMessage("发送失败", c)
+	} else {
+		response.OkWithMessage("发送成功", c)
+	}
+}
+func (studentRecruitApi *StudentRecruitApi) ProduceRecruitInfomation(c *gin.Context) {
+	var Recruit autocodeReq.RecruitToRabbitmqInfo
+	_ = c.ShouldBindJSON(&Recruit)
+	if err := studentRecruitService.ProduceRecruitInfomationByRouting(Recruit.Producer, Recruit.Comsumer); err != nil {
 		global.GVA_LOG.Error("发送失败!", zap.Error(err))
 		response.FailWithMessage("发送失败", c)
 	} else {

@@ -24,7 +24,18 @@ type StudentRequestInfo struct {
 	Introduction string `json:"introduction" form:"introduction" gorm:"column:introduction;comment:介绍;size:255;"`
 }
 
+type ComsumerRequestInfo struct {
+	ID    uint   `gorm:"primarykey"` // 主键ID
+	Key   string `json:"key" gorm:"key"`
+	Email string `json:"email" form:"email" gorm:"column:email;comment:邮箱;size:255;"`
+}
+
 type StudentRecruitToRabbitmq struct {
 	Producer StudentRequestInfo      `json:"producer"`
 	Comsumer autocode.StudentRecruit `json:"comsumer"`
+}
+
+type RecruitToRabbitmqInfo struct {
+	Producer StudentRequestInfo  `json:"producer"`
+	Comsumer ComsumerRequestInfo `json:"comsumer"`
 }

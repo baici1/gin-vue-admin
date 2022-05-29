@@ -71,7 +71,7 @@ email:
   host: smtp.qq.com
   is-ssl: true
   secret: ffyodghoscdrcajb
-  nickname: test
+  nickname: "有人想要加入您！"
 excel:
   dir: ./resource/excel/
 hua-wei-obs:
@@ -122,7 +122,7 @@ redis:
   addr: 47.113.203.60:6379
   password: "yangaoyu767801@"
 system:
-  env: public
+  env: test
   addr: 8888
   db-type: mysql
   oss-type: qiniu
@@ -162,15 +162,18 @@ rabbitmq:
     addr: "amqp://guest:guest@106.12.133.12:5672/"
     queueName: "helloword_queue"
     durable: false                                        #消息是否持久化
-    consumerChanNumber: 2                                 #消费者通道数量（允许一个消费者使用几个连接通道消费、处理消息）
+    consumerChanNumber: 5                                 #消费者通道数量（允许一个消费者使用几个连接通道消费、处理消息）
     offLineReconnectIntervalSec: 5                        #消费者掉线后,重连间隔的秒数
     retryCount: 5
   Routing:
-    Addr: "amqp://guest:guest@localhost:5672/"   #参照前文地址说明
+    Addr: "amqp://guest:guest@106.12.133.12:5672/"   #参照前文地址说明
     ExchangeType: "direct"
     ExchangeName: "direct_exchange"
     DelayedExchangeName: "delayed_direct_exchange"        #延迟消息队列名称，必须事先在rabbitmq 服务器管理端手动创建
-    Durable: true                                        #消息是否持久化，如果初始化的是延迟消息队列,那么该参数会被程序强制设置为 true
+    Durable: false                                        #消息是否持久化，如果初始化的是延迟消息队列,那么该参数会被程序强制设置为 true
     QueueName: "Routing_queue"
     OffLineReconnectIntervalSec: 10                       #消费者掉线后,重连间隔的秒数
     RetryCount: 5                                         #消费者掉线后,尝试重连最大次数#消费者掉线后,尝试重连最大次数
+elasticsearch:
+  path: 106.12.133.12
+  port: 9200

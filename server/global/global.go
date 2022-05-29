@@ -1,6 +1,7 @@
 package global
 
 import (
+	"github.com/olivere/elastic/v7"
 	"sync"
 
 	"github.com/flipped-aurora/gin-vue-admin/server/utils/timer"
@@ -20,6 +21,7 @@ import (
 var (
 	GVA_DB     *gorm.DB
 	GVA_DBList map[string]*gorm.DB
+	GVA_ES     *elastic.Client
 	GVA_REDIS  *redis.Client
 	GVA_CONFIG config.Server
 	GVA_VP     *viper.Viper

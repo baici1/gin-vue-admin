@@ -129,26 +129,6 @@ func (userInfoService *UserInfoService) CreateUserByRegister(userInfo autocode.U
 		tx.Rollback()
 		return
 	}
-	////需要根据身份去创建一个基本的用户信息（老师与学生）
-	//if userInfo.Identity == 2019 {
-	//	stu := autocode.StudentInfo{
-	//		Nickname: userInfo.Phone,
-	//		Avatar:   `http://project.yangdiy.cn/16483710248249a5f4881211ebb6edd017c2d2eca2.jpg`,
-	//		RealName: userInfo.Phone,
-	//	}
-	//	err = global.GVA_DB.Create(&stu).Error
-	//} else {
-	//	tea := autocode.TeacherInfo{
-	//		Nickname: userInfo.Phone,
-	//		Avatar:   `http://project.yangdiy.cn/16483710248249a5f4881211ebb6edd017c2d2eca2.jpg`,
-	//		RealName: userInfo.Phone,
-	//	}
-	//	err = global.GVA_DB.Create(&tea).Error
-	//}
-	//if err != nil {
-	//	tx.Rollback()
-	//	return
-	//}
 	tx.Commit()
 	return
 }

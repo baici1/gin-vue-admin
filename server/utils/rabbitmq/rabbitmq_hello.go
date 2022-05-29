@@ -15,22 +15,21 @@ import (
 	"text/template"
 )
 
-func CreateRabbitMqFactory() *rmqHandleMsg {
-	return &rmqHandleMsg{}
+func CreateRabbitMqFactoryByHello() *rmqHandleMsgByHello {
+	return &rmqHandleMsgByHello{}
 }
 
-type rmqHandleMsg struct{}
+type rmqHandleMsgByHello struct{}
 
 //通过helloworld模式处理消息
 
-func (r *rmqHandleMsg) StartHandleMsgByHelloWorld() {
+func (r *rmqHandleMsgByHello) StartHandleMsgByHelloWorld() {
 
 	consumer, err := hello_world.CreateConsumer()
 	if err != nil {
 		global.GVA_LOG.Error("HelloWorld create consumer failed", zap.Error(err))
 		os.Exit(1)
 	}
-
 	consumer.OnConnectionError(func(err *amqp.Error) {
 		global.GVA_LOG.Error("HelloWorld Connection error:", zap.Error(err))
 	})
@@ -46,7 +45,7 @@ func (r *rmqHandleMsg) StartHandleMsgByHelloWorld() {
 			return
 		}
 		//解析邮件模板文件
-		tmpl, err := template.ParseFiles("./index.html")
+		tmpl, err := template.ParseFiles("C:\\Users\\Y\\Desktop\\gva\\server\\utils\\rabbitmq\\index.html")
 		if err != nil {
 			global.GVA_LOG.Error("文件解析失败", zap.Error(err))
 			return
@@ -70,7 +69,5 @@ func (r *rmqHandleMsg) StartHandleMsgByHelloWorld() {
 		if err != nil {
 			global.GVA_LOG.Error("反序列化失败", zap.Error(err))
 		}
-
 	})
-
 }

@@ -24,9 +24,11 @@ func main() {
 	global.GVA_LOG = core.Zap()  // 初始化zap日志库
 	//ReplaceGlobals 替换全局 Logger 和 SugaredLogger，并返回一个函数来恢复原始值。
 	zap.ReplaceGlobals(global.GVA_LOG)
-	global.GVA_DB = initialize.Gorm() // gorm连接数据库
+	global.GVA_DB = initialize.Gorm()        // gorm连接数据库
+	global.GVA_ES = initialize.GetEsClient() //es
 	initialize.Timer()
 	initialize.DBList()
+	initialize.InitEsAllIndex() //创建表
 	if global.GVA_DB != nil {
 		initialize.RegisterTables(global.GVA_DB) // 初始化表
 		// 程序结束前关闭数据库链接

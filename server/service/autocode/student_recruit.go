@@ -8,6 +8,7 @@ import (
 	autoCodeReq "github.com/flipped-aurora/gin-vue-admin/server/model/autocode/request"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/common/request"
 	"github.com/flipped-aurora/gin-vue-admin/server/utils/rabbitmq/hello_world"
+	"github.com/flipped-aurora/gin-vue-admin/server/utils/rabbitmq/routing"
 	"go.uber.org/zap"
 	"os"
 )
@@ -72,7 +73,7 @@ func (studentRecruitService *StudentRecruitService) GetStudentRecruitInfoList(in
 	err = db.Limit(limit).Offset(offset).Preload("Competition").Preload("Competition.BaseInfo").Preload("Member").Find(&studentRecruits).Error
 	return err, studentRecruits, total
 }
-func (studentRecruitService *StudentRecruitService) ProduceStudentRecruitInfomation(stu autoCodeReq.StudentRequestInfo, info autocode.StudentRecruit) (err error) {
+func (studentRecruitService *StudentRecruitService) ProduceStudentRecruitInfomationByHello(stu autoCodeReq.StudentRequestInfo, info autocode.StudentRecruit) (err error) {
 	//首先选择简单的工作模式 hello_world
 	/*
 		思路：
@@ -108,6 +109,49 @@ func (studentRecruitService *StudentRecruitService) ProduceStudentRecruitInfomat
 	//开始发送消息
 	res := helloProducer.Send(data)
 	helloProducer.Close() // 消息投递结束，必须关闭连接
+	if res {
+		return nil
+	} else {
+		return errors.New("发送失败")
+	}
+}
+
+func (studentRecruitService *StudentRecruitService) ProduceRecruitInfomationByRouting(stu autoCodeReq.StudentRequestInfo, info autoCodeReq.ComsumerRequestInfo) (err error) {
+	//首先选择简单的工作模式 hello_world
+	/*
+		思路：
+		传递消息：
+			1.学生id
+			2.学生联系方式qq//微信
+		传递对象：
+			发布消息的负责人
+		程序步骤
+			1.创建生产者
+			2.根据需要传递消息生成str 序列化
+			3.关闭传送
+	*/
+	//对信息进行校验，保证后续功能能正常进行下去。
+	if stu.QQ == "" || stu.Wechat == "" || stu.RealName == "" {
+		return errors.New("很抱歉！不能继续申请。")
+	}
+	producer, err := routing.CreateProducer()
+	if err != nil {
+		global.GVA_LOG.Error("创建生产者失败", zap.Error(err))
+		os.Exit(1)
+	}
+	//将生产者信息序列化，作为消息进行发布
+	infomation := autoCodeReq.RecruitToRabbitmqInfo{
+		Producer: stu,
+		Comsumer: info,
+	}
+	data, err := json.Marshal(infomation)
+	if err != nil {
+		global.GVA_LOG.Error("序列化失败", zap.Error(err))
+		return
+	}
+	//开始发送消息
+	res := producer.Send(info.Key, data, 10000)
+	producer.Close() // 消息投递结束，必须关闭连接
 	if res {
 		return nil
 	} else {

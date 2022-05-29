@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/flipped-aurora/gin-vue-admin/server/utils"
 	"github.com/flipped-aurora/gin-vue-admin/server/utils/rabbitmq"
+	"github.com/gin-contrib/pprof"
 	"time"
 
 	"github.com/flipped-aurora/gin-vue-admin/server/global"
@@ -32,10 +33,15 @@ func RunWindowsServer() {
 	}
 
 	Router := initialize.Routers()
+	//当当前模式为测试模式，开始pprof
+	if global.GVA_CONFIG.System.Env == "test" {
+		pprof.Register(Router)
+	}
 	Router.Static("/form-generator", "./resource/page")
 
 	address := fmt.Sprintf(":%d", global.GVA_CONFIG.System.Addr)
 	s := initServer(address, Router)
+
 	// 保证文本顺序输出
 	// In order to ensure that the text order output can be deleted
 	time.Sleep(10 * time.Microsecond)
@@ -44,6 +50,6 @@ func RunWindowsServer() {
 	GVA讨论社区:https://support.qq.com/products/371961
 	`)
 	//启动rabbitmq服务处理消息
-	go rabbitmq.CreateRabbitMqFactory().StartHandleMsgByHelloWorld()
+	go rabbitmq.CreateRabbitMqFactoryByRouting().StartHandleMsgByRoutingToStudent()
 	global.GVA_LOG.Error(s.ListenAndServe().Error())
 }

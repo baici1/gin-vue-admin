@@ -6,6 +6,7 @@ import (
 	autocodeReq "github.com/flipped-aurora/gin-vue-admin/server/model/autocode/request"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/common/request"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/common/response"
+	"github.com/flipped-aurora/gin-vue-admin/server/model/es"
 	"github.com/flipped-aurora/gin-vue-admin/server/service"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
@@ -137,6 +138,19 @@ func (articleApi *ArticleApi) GetArticleList(c *gin.Context) {
 			Total:    total,
 			Page:     pageInfo.Page,
 			PageSize: pageInfo.PageSize,
+		}, "获取成功", c)
+	}
+}
+
+func (articleApi *ArticleApi) EsGetArticleInfoByMatch(c *gin.Context) {
+	var article autocode.Article
+	_ = c.ShouldBindQuery(&article)
+	if list, err := articleService.EsGetArticleInfoByMatch(es.ArticleIndex, article.Title, article.Description); err != nil {
+		global.GVA_LOG.Error("获取失败!", zap.Error(err))
+		response.FailWithMessage("获取失败", c)
+	} else {
+		response.OkWithDetailed(gin.H{
+			"List": list,
 		}, "获取成功", c)
 	}
 }
