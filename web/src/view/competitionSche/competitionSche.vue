@@ -149,13 +149,13 @@
       title="弹窗操作"
     >
       <el-form :model="formData" label-position="right" label-width="80px">
-        <el-form-item label="竞赛编号:">
+        <!-- <el-form-item label="竞赛编号:">
           <el-input
             v-model.number="formData.cId"
             clearable
             placeholder="请输入"
           />
-        </el-form-item>
+        </el-form-item> -->
         <el-form-item label="比赛的届数:">
           <el-input
             v-model.number="formData.version"
@@ -236,7 +236,13 @@ import {
 } from '@/utils/format'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { ref } from 'vue'
-
+import { useRoute } from 'vue-router'
+const route = useRoute()
+console.log(
+  '%c 🌯 route: ',
+  'font-size:20px;background-color: #465975;color:#fff;',
+  route
+)
 // 自动化生成的字典（可能为空）以及字段
 const formData = ref({
   cId: 0,
@@ -286,6 +292,7 @@ const getTableData = async () => {
   const table = await getCompetitionScheList({
     page: page.value,
     pageSize: pageSize.value,
+    cId: route.query.cId,
     ...searchInfo.value,
   })
   if (table.code === 0) {
@@ -407,6 +414,7 @@ const closeDialog = () => {
 // 弹窗确定
 const enterDialog = async () => {
   let res
+  formData.value.cId = +route.query.cId
   switch (type.value) {
     case 'create':
       res = await createCompetitionSche(formData.value)

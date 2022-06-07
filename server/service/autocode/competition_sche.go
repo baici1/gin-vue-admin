@@ -1,6 +1,7 @@
 package autocode
 
 import (
+	"fmt"
 	"github.com/flipped-aurora/gin-vue-admin/server/global"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/autocode"
 	autoCodeReq "github.com/flipped-aurora/gin-vue-admin/server/model/autocode/request"
@@ -76,11 +77,16 @@ func (competitionScheService *CompetitionScheService) GetCompetitionScheDetailLi
 	db = db.Joins("left join competition_info on competition_sche.c_id=competition_info.id")
 	//可加条件
 	db = db.Where("competition_info.c_name like ?", "%"+info.SearchInfo+"%")
+	fmt.Println(info.SearchInfo)
+	if info.StartTime.Year() != 1 {
+		db = db.Where("start_time >= ? and end_time<=?", info.StartTime, info.EndTime)
+	}
 	if info.CType != 0 {
 		db = db.Where("competition_info.c_type =?", info.CType)
 	}
-	err = db.Limit(limit).Offset(offset).Preload("BaseInfo", "c_name like ?", "%"+info.SearchInfo+"%").Find(&competitionSches).Error
+	db.Order("start_time asc")
 	err = db.Count(&total).Error
+	err = db.Limit(limit).Offset(offset).Preload("BaseInfo", "c_name like ?", "%"+info.SearchInfo+"%").Find(&competitionSches).Error
 	if err != nil {
 		return
 	}

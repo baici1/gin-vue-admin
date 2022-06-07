@@ -20,13 +20,14 @@ type ArticleService struct {
 // CreateArticle 创建Article记录
 // Author [piexlmax](https://github.com/piexlmax)
 func (articleService *ArticleService) CreateArticle(article autocode.Article) (err error) {
-	data, err := json.Marshal(&article)
-	if err != nil {
-		global.GVA_LOG.Error("CreateArticle article 序列化失败", zap.Error(err))
-	}
+
 	err = global.GVA_DB.Create(&article).Error
 	if err != nil {
 		global.GVA_LOG.Error("global.GVA_DB.Create failed", zap.Error(err))
+	}
+	data, err := json.Marshal(&article)
+	if err != nil {
+		global.GVA_LOG.Error("CreateArticle article 序列化失败", zap.Error(err))
 	}
 	err = (&EsService{}).Create(es.ArticleIndex, strconv.Itoa(int(article.ID)), string(data))
 	return err
@@ -98,15 +99,24 @@ func (articleService *ArticleService) GetArticleInfoList(info autoCodeReq.Articl
 	return err, articles, total
 }
 
-func (articleService *ArticleService) EsGetArticleInfoByMatch(index, title, description string) ([]autocode.Article, error) {
+func (articleService *ArticleService) EsGetArticleInfoByMatch(index, queryStr string) ([]autocode.Article, error) {
 	ctx := context.Background()
 	// 创建 bool 查询
 	boolQuery := elastic.NewBoolQuery()
-	titleQuery := elastic.NewMatchQuery("title", title)
-	descriptionQuery := elastic.NewMatchQuery("description", description)
+	// 短句匹配
+	titleQuery := elastic.NewMatchPhrasePrefixQuery("title", queryStr).MaxExpansions(10)
+	//titleQuery := elastic.NewMatchQuery("title", queryStr)
+	descriptionQuery := elastic.NewMatchQuery("description", queryStr)
+	// 定义highlight
+	highlight := elastic.NewHighlight()
+	// 指定需要高亮的字段
+	highlight = highlight.Fields(elastic.NewHighlighterField("title"), elastic.NewHighlighterField("description"))
+	// 指定高亮的返回逻辑 <span style='color: red;'>...msg...</span>
+	highlight = highlight.PreTags("<span style='color: red;'>").PostTags("</span>")
 	boolQuery.Should(titleQuery, descriptionQuery)
 	boolQuery.MinimumNumberShouldMatch(1) // 至少满足 should 中的一个条件
 	searchResult, err := global.GVA_ES.Search().Index(index).Query(boolQuery).
+		Highlight(highlight).
 		//Sort("create_time", true). // 设置排序字段，根据 create_time 字段升序排序
 		From(0).  // 设置分页参数 - 起始偏移量，从第 0 行记录开始
 		Size(10). // 设置分页参数 - 每页大小
@@ -118,6 +128,14 @@ func (articleService *ArticleService) EsGetArticleInfoByMatch(index, title, desc
 	data := []autocode.Article{}
 	for _, v := range searchResult.Each(reflect.TypeOf(autocode.Article{})) {
 		data = append(data, v.(autocode.Article))
+	}
+	for index, highliter := range searchResult.Hits.Hits {
+		if vv, ok := highliter.Highlight["title"]; ok {
+			data[index].Title = vv[0]
+		}
+		if vv, ok := highliter.Highlight["description"]; ok {
+			data[index].Description = vv[0]
+		}
 	}
 	return data, nil
 }

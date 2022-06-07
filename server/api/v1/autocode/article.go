@@ -143,14 +143,13 @@ func (articleApi *ArticleApi) GetArticleList(c *gin.Context) {
 }
 
 func (articleApi *ArticleApi) EsGetArticleInfoByMatch(c *gin.Context) {
-	var article autocode.Article
-	_ = c.ShouldBindQuery(&article)
-	if list, err := articleService.EsGetArticleInfoByMatch(es.ArticleIndex, article.Title, article.Description); err != nil {
+	article := c.Query("article")
+	if list, err := articleService.EsGetArticleInfoByMatch(es.ArticleIndex, article); err != nil {
 		global.GVA_LOG.Error("获取失败!", zap.Error(err))
 		response.FailWithMessage("获取失败", c)
 	} else {
 		response.OkWithDetailed(gin.H{
-			"List": list,
+			"list": list,
 		}, "获取成功", c)
 	}
 }

@@ -170,7 +170,7 @@ rabbitmq:
     ExchangeType: "direct"
     ExchangeName: "direct_exchange"
     DelayedExchangeName: "delayed_direct_exchange"        #延迟消息队列名称，必须事先在rabbitmq 服务器管理端手动创建
-    Durable: false                                        #消息是否持久化，如果初始化的是延迟消息队列,那么该参数会被程序强制设置为 true
+    Durable: true                                        #消息是否持久化，如果初始化的是延迟消息队列,那么该参数会被程序强制设置为 true
     QueueName: "Routing_queue"
     OffLineReconnectIntervalSec: 10                       #消费者掉线后,重连间隔的秒数
     RetryCount: 5                                         #消费者掉线后,尝试重连最大次数#消费者掉线后,尝试重连最大次数

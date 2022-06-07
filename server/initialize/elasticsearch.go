@@ -2,6 +2,7 @@ package initialize
 
 import (
 	"context"
+	"errors"
 	"github.com/flipped-aurora/gin-vue-admin/server/global"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/es"
 	"github.com/olivere/elastic/v7"
@@ -9,6 +10,8 @@ import (
 	"log"
 	"os"
 )
+
+var CreateIndexExists = errors.New("已经创建")
 
 type EsIndex struct {
 	Index   string
@@ -43,7 +46,7 @@ func CrtESIndex(ctx context.Context, index, desc string) error {
 	}
 	// 已经创建
 	if exist {
-		return nil
+		return CreateIndexExists
 	}
 	// 重复创建会报错
 	_, err = global.GVA_ES.CreateIndex(index).BodyString(desc).Do(ctx)
@@ -61,6 +64,9 @@ func InitEsAllIndex() {
 		ctx := context.Background()
 		err := CrtESIndex(ctx, v.Index, v.Mapping)
 		if err != nil {
+			if errors.Is(err, CreateIndexExists) {
+				continue
+			}
 			global.GVA_LOG.Error("create Index "+v.Index+" failed", zap.Error(err))
 		}
 	}

@@ -6,7 +6,15 @@
           <el-input v-model="formData.title" clearable placeholder="请输入" />
         </el-form-item>
         <el-form-item label="引用:">
-          <el-input v-model="formData.description" clearable placeholder="请输入" />
+          <el-input
+            v-model="formData.description"
+            clearable
+            placeholder="请输入"
+            maxlength="150"
+            show-word-limit
+            autosize
+            type="textarea"
+          />
         </el-form-item>
 
         <el-form-item label="浏览量:">
@@ -66,7 +74,7 @@
         <div
           v-if="isEditorShow"
           v-loading="!isEditorShow"
-          style="border: 1px solid #ccc;"
+          style="border: 1px solid #ccc"
           class="mb-10"
         >
           <Toolbar
@@ -80,7 +88,7 @@
             :default-config="editorConfig"
             :default-html="defaultHtml"
             mode="default"
-            style="height: 500px; overflow-y: hidden;"
+            style="height: 500px; overflow-y: hidden"
           />
           <!-- 注意: defaultContent (JSON 格式) 和 defaultHtml (HTML 格式) ，二选一 -->
         </div>
@@ -99,7 +107,7 @@
 
 <script>
 export default {
-  name: 'Article'
+  name: 'Article',
 }
 </script>
 
@@ -108,7 +116,7 @@ import {
   createArticle,
   updateArticle,
   findArticle,
-  uploadFile
+  uploadFile,
 } from '@/api/article'
 
 // 自动获取字典
@@ -116,7 +124,12 @@ import { getDictFunc } from '@/utils/format'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { ref, onBeforeUnmount } from 'vue'
-import { Editor, Toolbar, getEditor, removeEditor } from '@wangeditor/editor-for-vue'
+import {
+  Editor,
+  Toolbar,
+  getEditor,
+  removeEditor,
+} from '@wangeditor/editor-for-vue'
 import { useUserStore } from '../../pinia/modules/user'
 
 const route = useRoute()
@@ -177,7 +190,7 @@ const save = async () => {
   if (res.code === 0) {
     ElMessage({
       type: 'success',
-      message: '创建/更改成功'
+      message: '创建/更改成功',
     })
   }
 }
@@ -197,10 +210,10 @@ const editorId = `w-e-${Math.random().toString().slice(-5)}` // 【注意】编�
 // ]
 // 工具栏配置
 const toolbarConfig = {
-  excludeKeys: ['fullScreen']
+  excludeKeys: ['fullScreen'],
 }
 // 自定义校验链接
-function customCheckLinkFn (text, url) {
+function customCheckLinkFn(text, url) {
   if (!url) {
     return
   }
@@ -219,8 +232,16 @@ const editorConfig = {
   autoFocus: false,
   // 自定义alert
   customAlert: (s, t) => {
-    console.log('%c 🍕 t: ', 'font-size:20px;background-color: #33A5FF;color:#fff;', t)
-    console.log('%c 🥥 s: ', 'font-size:20px;background-color: #FCA650;color:#fff;', s)
+    console.log(
+      '%c 🍕 t: ',
+      'font-size:20px;background-color: #33A5FF;color:#fff;',
+      t
+    )
+    console.log(
+      '%c 🥥 s: ',
+      'font-size:20px;background-color: #FCA650;color:#fff;',
+      s
+    )
     switch (t) {
       case 'success':
         ElMessage.success(s)
@@ -251,7 +272,7 @@ const editorConfig = {
       checkLink: customCheckLinkFn, // 也支持 async 函数
     },
     insertImage: {
-      onInsertedImage (imageNode) {
+      onInsertedImage(imageNode) {
         if (imageNode == null) return
 
         const { src, alt, url, href } = imageNode
@@ -265,9 +286,9 @@ const editorConfig = {
       fieldName: 'file',
       // 自定义增加 http  header
       headers: {
-        xToken: userStore.token
+        xToken: userStore.token,
       },
-      customInsert (res, insertFn) {
+      customInsert(res, insertFn) {
         // res 即服务端的返回结果
         // 从 res 中找到 url alt href ，然后插图图片
         insertFn(res.data.file.url, res.data.file.name)
@@ -282,8 +303,8 @@ const editorConfig = {
         const alt = data.data.file.name
         // 最后插入图片
         insertFn(url, alt)
-      }
-    }
+      },
+    },
   },
 }
 
@@ -296,7 +317,26 @@ onBeforeUnmount(() => {
   removeEditor(editorId)
 })
 </script>
-
-<style src="@wangeditor/editor/dist/css/style.css"></style>
-<style>
+<style lang="scss" scoped>
+.w-e-text-container {
+  p {
+    strong {
+      font-weight: bolder !important;
+    }
+    b {
+      font-weight: bold !important;
+    }
+    i {
+      font-style: italic !important;
+    }
+    em {
+      font-style: italic !important;
+    }
+  }
+}
+h2 {
+  font-weight: bold !important;
+  font-size: 1.5em !important;
+}
 </style>
+<style src="@wangeditor/editor/dist/css/style.css"></style>
